@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Glicemia · Control Salud</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-body: #f4f7fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fafcff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e9edf2;
+            --border-input: #d1d9e6;
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.04);
+            --header-border: #b0c4de;
+            --btn-primary: #2c7a7b;
+            --btn-primary-hover: #1a5c5d;
+            --btn-danger-bg: #e2e8f0;
+            --btn-danger-hover: #fee2e2;
+            --table-header: #f1f5f9;
+            --stat-bg: #f8fafc;
+            --badge-bg: #e2e8f0;
+            --color-hypo-bg: #b91c1c;
+            --color-hypo-text: white;
+            --color-normal: #15803d;
+            --color-prediabetes: #b45309;
+            --color-diabetes: #b91c1c;
+        }
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #273548;
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-light: #334155;
+            --border-input: #475569;
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.5);
+            --header-border: #334155;
+            --btn-primary: #38bdf8;
+            --btn-primary-hover: #7dd3fc;
+            --btn-danger-bg: #334155;
+            --btn-danger-hover: #7f1d1d;
+            --table-header: #0f172a;
+            --stat-bg: #0f172a;
+            --badge-bg: #334155;
+            --color-normal: #4ade80;
+            --color-prediabetes: #facc15;
+            --color-diabetes: #f87171;
+            --color-hypo-bg: #7f1d1d;
+            --color-hypo-text: #fecaca;
+        }
+        [data-theme="dark"] .card { border-color: #334155; }
+        [data-theme="dark"] .stat-item { border-color: #334155; }
+        [data-theme="dark"] .btn-danger { background: #334155; color: #fca5a5; }
+        [data-theme="dark"] .btn-danger:hover { background: #7f1d1d; color: white; }
+        [data-theme="dark"] input, [data-theme="dark"] textarea, [data-theme="dark"] select {
+            background: #0f172a; color: #e2e8f0; border-color: #475569;
+        }
+        [data-theme="dark"] input:focus, [data-theme="dark"] textarea:focus, [data-theme="dark"] select:focus {
+            background: #1e293b; border-color: #38bdf8;
+        }
+        [data-theme="dark"] th { background: #0f172a; color: #e2e8f0; border-color: #334155; }
+        [data-theme="dark"] td { border-color: #1e293b; }
+        [data-theme="dark"] tr:hover td { background: #273548; }
+
+        * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; margin: 0; padding: 0; }
+        body {
+            background: var(--bg-body);
+            padding: 20px;
+            color: var(--text-primary);
+            transition: background 0.2s, color 0.2s;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--header-border);
+        }
+        header h1 { font-weight: 300; }
+        header h1 span { font-weight: 700; color: var(--btn-primary); }
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .badge {
+            background: var(--badge-bg);
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .toggle-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-input);
+            border-radius: 40px;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .toggle-btn:hover { background: var(--border-light); }
+
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 25px; }
+        .card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 22px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-light);
+            transition: background 0.2s;
+        }
+        .card-title {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .target-group { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
+        .target-group label { display: flex; align-items: center; gap: 8px; font-weight: 500; font-size: 0.95rem; }
+        .target-group input {
+            width: 80px;
+            padding: 8px 10px;
+            border: 1.5px solid var(--border-input);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-align: center;
+            background: var(--bg-body);
+            color: var(--text-primary);
+        }
+        .target-group input:focus { border-color: var(--btn-primary); outline: none; }
+
+        .form-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: end; margin-bottom: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; flex: 1 0 120px; }
+        .form-group label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 10px 12px;
+            border: 1.5px solid var(--border-input);
+            border-radius: 14px;
+            font-size: 0.95rem;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            transition: 0.15s;
+            width: 100%;
+        }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            border-color: var(--btn-primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 122, 123, 0.15);
+        }
+
+        .btn {
+            background: var(--btn-primary);
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 8px rgba(44, 122, 123, 0.15);
+        }
+        .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+        .btn-danger { background: var(--btn-danger-bg); color: var(--text-secondary); box-shadow: none; }
+        .btn-danger:hover { background: var(--btn-danger-hover); color: #991b1b; }
+        .btn-sm { padding: 6px 16px; font-size: 0.8rem; }
+        .btn-secondary { background: var(--badge-bg); color: var(--text-primary); box-shadow: none; }
+        .btn-secondary:hover { background: var(--border-input); }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-top: 5px; }
+        .stat-item {
+            background: var(--stat-bg);
+            border-radius: 16px;
+            padding: 12px 10px;
+            text-align: center;
+            border: 1px solid var(--border-light);
+        }
+        .stat-item .number { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+        .stat-item .label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
+
+        .chart-wrapper { height: 250px; position: relative; margin-top: 5px; }
+
+        .table-responsive { overflow-x: auto; margin-top: 15px; border-radius: 16px; border: 1px solid var(--border-light); }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+        th {
+            background: var(--table-header);
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 12px 10px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-light);
+        }
+        td { padding: 10px; border-bottom: 1px solid var(--border-light); vertical-align: middle; }
+        tr:hover td { background: var(--bg-card-hover); }
+        .empty-msg { text-align: center; color: var(--text-muted); padding: 30px 0; font-style: italic; }
+        .action-btn {
+            background: none; border: none; cursor: pointer; font-size: 1.1rem;
+            padding: 4px 6px; border-radius: 30px; transition: 0.2s; color: var(--text-muted);
+        }
+        .action-btn:hover { background: var(--btn-danger-hover); }
+        .edit-btn:hover { background: #bfdbfe; color: #1e40af; }
+        [data-theme="dark"] .edit-btn:hover { background: #1e3a5f; color: #93c5fd; }
+
+        .cat-hypo {
+            background: var(--color-hypo-bg) !important;
+            color: var(--color-hypo-text) !important;
+            font-weight: 700; padding: 2px 10px; border-radius: 30px; display: inline-block;
+        }
+        .cat-normal { color: var(--color-normal); font-weight: 600; }
+        .cat-prediabetes { color: var(--color-prediabetes); font-weight: 600; }
+        .cat-diabetes { color: var(--color-diabetes); font-weight: 700; }
+
+        .alert-glucose {
+            font-weight: 600; font-size: 0.85rem; margin-top: 4px; display: none;
+        }
+        .alert-low { color: #b91c1c; }
+        .alert-high { color: #b45309; }
+        [data-theme="dark"] .alert-low { color: #f87171; }
+        [data-theme="dark"] .alert-high { color: #facc15; }
+
+        .footer-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 20px; align-items: center; }
+        .credit { text-align: right; font-size: 0.75rem; color: var(--text-muted); margin-top: 30px; border-top: 1px solid var(--border-light); padding-top: 20px; }
+
+        /* ----- BOTÓN FLOTANTE "VOLVER AL HOME" ----- */
+        .home-fab {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 56px; height: 56px; border-radius: 50%;
+            background: var(--btn-primary); color: white; border: none;
+            font-size: 1.4rem; cursor: pointer;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+            display: flex; align-items: center; justify-content: center;
+            text-decoration: none;
+            transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+            z-index: 9999;
+        }
+        .home-fab:hover {
+            background: var(--btn-primary-hover);
+            transform: scale(1.08);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        .home-fab:active { transform: scale(0.95); }
+        .home-fab::after {
+            content: "Volver al inicio";
+            position: absolute; right: 70px; white-space: nowrap;
+            background: var(--text-primary); color: var(--bg-card);
+            font-size: 0.75rem; padding: 6px 12px; border-radius: 8px;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+        .home-fab:hover::after { opacity: 1; }
+
+        @media (max-width: 760px) {
+            .grid-2col { grid-template-columns: 1fr; gap: 15px; }
+            header { flex-direction: column; align-items: start; gap: 10px; }
+            .home-fab {
+                width: 50px; height: 50px; font-size: 1.2rem;
+                bottom: 16px; right: 16px;
+            }
+            .home-fab::after { display: none; }
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; break-inside: avoid; }
+            body { background: white !important; padding: 10px !important; }
+            .chart-wrapper { height: 200px !important; }
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .home-fab { display: none !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>🩸 <span>Glicemia</span> · Control Salud</h1>
+        <div class="header-actions">
+            <a href="index.html" class="toggle-btn no-print" title="Volver al inicio">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+            <span class="badge">💾 Datos locales</span>
+            <button class="toggle-btn no-print" id="themeToggleBtn" onclick="toggleTheme()">🌙 Modo oscuro</button>
+        </div>
+    </header>
+
+    <div class="grid-2col">
+        <div class="card">
+            <div class="card-title">🎯 Meta de glicemia en ayunas</div>
+            <div class="target-group">
+                <label>Máx. deseable <input type="number" id="goalGlucose" value="120" step="1"></label>
+                <button class="btn btn-sm no-print" style="background:#475569;" onclick="updateGoal()">Actualizar</button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">Línea punteada en el gráfico.</p>
+        </div>
+        <div class="card">
+            <div class="card-title">📊 Resumen general</div>
+            <div class="stats-grid" id="statsContainer">
+                <div class="stat-item"><div class="number" id="avgGlucose">--</div><div class="label">Prom. Glicemia</div></div>
+                <div class="stat-item"><div class="number" id="rangeGlucose">--</div><div class="label">Rango (mg/dL)</div></div>
+                <div class="stat-item"><div class="number" id="totalReadings">0</div><div class="label">Total tomas</div></div>
+                <div class="stat-item"><div class="number" id="hypoCount">0</div><div class="label">⬇️ Hipoglucemias</div></div>
+                <div class="stat-item"><div class="number" id="hyperCount">0</div><div class="label">⬆️ Hiperglucemias</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="margin-bottom:25px;">
+        <div class="card-title" id="formTitle">✏️ Registrar nueva toma</div>
+        <div class="form-row">
+            <div class="form-group"><label>📅 Fecha</label><input type="date" id="inputDate"></div>
+            <div class="form-group"><label>⏰ Hora</label><input type="time" id="inputTime"></div>
+            <div class="form-group"><label>🩸 Glicemia (mg/dL)</label><input type="number" id="inputGlucose" placeholder="120" step="1"></div>
+        </div>
+        <div class="form-row">
+            <div class="form-group"><label>🍽️ Contexto</label>
+                <select id="inputContext">
+                    <option value="Ayunas">Ayunas</option>
+                    <option value="Postprandial (2h)">Postprandial (2h)</option>
+                    <option value="Aleatorio">Aleatorio</option>
+                    <option value="Preprandial">Preprandial</option>
+                </select>
+            </div>
+            <div class="form-group"><label>💊 Medicación</label><input type="text" id="inputMedication" placeholder="Insulina, metformina..."></div>
+            <div class="form-group" style="flex:2;"><label>📝 Notas</label><input type="text" id="inputNotes" placeholder="Ejercicio, estrés, comida..."></div>
+            <div class="form-group" style="flex:0 0 auto; justify-content:end; display:flex; gap:8px;">
+                <button class="btn no-print" id="mainActionBtn" onclick="addEntry()">➕ Agregar</button>
+                <button class="btn btn-secondary no-print" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">✖ Cancelar</button>
+            </div>
+        </div>
+        <div id="glucoseAlert" class="alert-glucose"></div>
+    </div>
+
+    <div class="card" style="margin-bottom:25px;">
+        <div class="card-title">📈 Tendencia de Glicemia</div>
+        <div class="chart-wrapper"><canvas id="glucoseChart"></canvas></div>
+    </div>
+
+    <div class="card">
+        <div class="card-title">📋 Historial de tomas</div>
+        <div class="table-responsive">
+            <table>
+                <thead><tr>
+                    <th>Fecha</th><th>Hora</th><th>Glicemia</th><th>Contexto</th><th>Medicación</th>
+                    <th>Categoría</th><th>Notas</th><th style="width:80px;" class="no-print">Acciones</th>
+                </tr></thead>
+                <tbody id="tableBody"><tr><td colspan="8" class="empty-msg">No hay registros aún.</td></tr></tbody>
+            </table>
+        </div>
+        <div class="footer-actions">
+            <span style="font-size:0.75rem; color:var(--text-muted);">💾 Los datos se guardan automáticamente.</span>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button class="btn btn-sm btn-danger no-print" onclick="exportCSV()">📥 Exportar CSV</button>
+                <button class="btn btn-sm btn-danger no-print" onclick="clearAllData()">🗑️ Eliminar todos</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="credit">v1 · Control de glicemia · Categorías ADA · Edición de registros · Modo oscuro</div>
+</div>
+
+<script>
+    let readings = [];
+    let chartInstance = null;
+    let editingIndex = null;
+
+    function loadTheme() {
+        const theme = localStorage.getItem('glucose_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+        const btn = document.getElementById('themeToggleBtn');
+        if (btn) btn.textContent = theme === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+    }
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('glucose_theme', next);
+        const btn = document.getElementById('themeToggleBtn');
+        if (btn) btn.textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+    }
+
+    function loadFromStorage() {
+        const stored = localStorage.getItem('glucose_readings');
+        if (stored) {
+            try { readings = JSON.parse(stored); }
+            catch (e) { readings = []; }
+        } else {
+            const today = getTodayString();
+            readings = [
+                { date: today, time: '07:00', glucose: 105, context: 'Ayunas', medication: 'Metformina 500mg', notes: 'Antes del desayuno' },
+                { date: today, time: '12:30', glucose: 145, context: 'Postprandial (2h)', medication: '', notes: 'Almuerzo con pasta' },
+                { date: today, time: '18:00', glucose: 95, context: 'Preprandial', medication: '', notes: 'Antes de cenar' },
+                { date: today, time: '21:00', glucose: 60, context: 'Aleatorio', medication: 'Insulina', notes: 'Síntomas de hipoglucemia' },
+            ];
+            saveToStorage();
+        }
+        readings = readings.filter(r => r && typeof r === 'object' && r.glucose !== undefined);
+        readings.sort((a,b) => new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
+        renderAll();
+    }
+
+    function saveToStorage() { localStorage.setItem('glucose_readings', JSON.stringify(readings)); }
+
+    function getTodayString() {
+        const d = new Date();
+        return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
+
+    function getCategory(glucose, context) {
+        const isFasting = context === 'Ayunas';
+        if (isFasting) {
+            if (glucose < 70) return { label: '⚠️ Hipoglucemia', cls: 'cat-hypo' };
+            if (glucose <= 100) return { label: '✅ Normal', cls: 'cat-normal' };
+            if (glucose <= 125) return { label: '🟡 Prediabetes', cls: 'cat-prediabetes' };
+            return { label: '🔴 Diabetes', cls: 'cat-diabetes' };
+        } else {
+            if (glucose < 70) return { label: '⚠️ Hipoglucemia', cls: 'cat-hypo' };
+            if (glucose <= 140) return { label: '✅ Normal', cls: 'cat-normal' };
+            if (glucose <= 199) return { label: '🟡 Prediabetes', cls: 'cat-prediabetes' };
+            return { label: '🔴 Diabetes', cls: 'cat-diabetes' };
+        }
+    }
+
+    function renderAll() {
+        updateStats();
+        renderTable();
+        updateChart();
+    }
+
+    function updateStats() {
+        const valid = readings.filter(r => r.glucose !== undefined && r.glucose !== null);
+        const count = valid.length;
+        document.getElementById('totalReadings').textContent = count;
+        if (count === 0) {
+            ['avgGlucose','rangeGlucose','hypoCount','hyperCount'].forEach(id => document.getElementById(id).textContent = '--');
+            return;
+        }
+        const values = valid.map(r=>r.glucose);
+        const avg = values.reduce((a,b)=>a+b,0) / values.length;
+        document.getElementById('avgGlucose').textContent = avg.toFixed(1);
+        document.getElementById('rangeGlucose').textContent = Math.min(...values)+' - '+Math.max(...values);
+
+        let hypo = 0, hyper = 0;
+        valid.forEach(r => {
+            const cat = getCategory(r.glucose, r.context || 'Aleatorio');
+            if (cat.cls === 'cat-hypo') hypo++;
+            if (cat.cls === 'cat-diabetes' || cat.cls === 'cat-prediabetes') hyper++;
+        });
+        document.getElementById('hypoCount').textContent = hypo;
+        document.getElementById('hyperCount').textContent = hyper;
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('tableBody');
+        if (readings.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No hay registros aún.</td></tr>';
+            return;
+        }
+        let html = '';
+        [...readings].reverse().forEach((r, idx) => {
+            const realIdx = readings.length - 1 - idx;
+            const cat = getCategory(r.glucose, r.context || 'Aleatorio');
+            html += `<tr>
+                <td>${r.date||''}</td>
+                <td>${r.time||''}</td>
+                <td><strong>${r.glucose}</strong></td>
+                <td>${r.context||''}</td>
+                <td>${r.medication||''}</td>
+                <td><span class="${cat.cls}">${cat.label}</span></td>
+                <td style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.notes||''}</td>
+                <td class="no-print" style="white-space:nowrap;">
+                    <button class="action-btn edit-btn" onclick="editEntry(${realIdx})" title="Editar">✏️</button>
+                    <button class="action-btn" onclick="deleteEntry(${realIdx})" title="Eliminar">🗑️</button>
+                </td>
+            </tr>`;
+        });
+        tbody.innerHTML = html;
+    }
+
+    function deleteEntry(index) {
+        if (!confirm('¿Eliminar esta toma?')) return;
+        readings.splice(index, 1);
+        saveToStorage();
+        renderAll();
+        if (editingIndex !== null) cancelEdit();
+    }
+
+    function clearAllData() {
+        if (!confirm('¿Eliminar TODOS los registros?')) return;
+        readings = [];
+        saveToStorage();
+        renderAll();
+        cancelEdit();
+    }
+
+    function editEntry(index) {
+        const r = readings[index];
+        if (!r) return;
+        document.getElementById('inputDate').value = r.date || '';
+        document.getElementById('inputTime').value = r.time || '';
+        document.getElementById('inputGlucose').value = r.glucose || '';
+        document.getElementById('inputContext').value = r.context || 'Ayunas';
+        document.getElementById('inputMedication').value = r.medication || '';
+        document.getElementById('inputNotes').value = r.notes || '';
+        editingIndex = index;
+        document.getElementById('formTitle').textContent = '✏️ Editando toma #' + (index+1);
+        document.getElementById('mainActionBtn').textContent = '💾 Actualizar';
+        document.getElementById('mainActionBtn').onclick = updateEntry;
+        document.getElementById('cancelEditBtn').style.display = 'inline-block';
+        checkGlucoseAlert();
+        document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function updateEntry() {
+        if (editingIndex === null) return;
+        const date = document.getElementById('inputDate').value;
+        const time = document.getElementById('inputTime').value;
+        const glucose = parseFloat(document.getElementById('inputGlucose').value);
+        const context = document.getElementById('inputContext').value;
+        const medication = document.getElementById('inputMedication').value.trim();
+        const notes = document.getElementById('inputNotes').value.trim();
+
+        if (!date) { alert('Selecciona una fecha.'); return; }
+        if (!time) { alert('Selecciona una hora.'); return; }
+        if (isNaN(glucose) || glucose<20 || glucose>600) { alert('Glicemia válida (20-600 mg/dL).'); return; }
+
+        readings[editingIndex] = { date, time, glucose, context, medication, notes };
+        readings.sort((a,b) => new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
+        saveToStorage();
+        renderAll();
+        cancelEdit();
+        alert('✅ Registro actualizado correctamente.');
+    }
+
+    function cancelEdit() {
+        editingIndex = null;
+        document.getElementById('formTitle').textContent = '✏️ Registrar nueva toma';
+        document.getElementById('mainActionBtn').textContent = '➕ Agregar';
+        document.getElementById('mainActionBtn').onclick = addEntry;
+        document.getElementById('cancelEditBtn').style.display = 'none';
+        document.getElementById('glucoseAlert').style.display = 'none';
+    }
+
+    function addEntry() {
+        if (editingIndex !== null) cancelEdit();
+
+        const date = document.getElementById('inputDate').value;
+        const time = document.getElementById('inputTime').value;
+        const glucose = parseFloat(document.getElementById('inputGlucose').value);
+        const context = document.getElementById('inputContext').value;
+        const medication = document.getElementById('inputMedication').value.trim();
+        const notes = document.getElementById('inputNotes').value.trim();
+
+        if (!date) { alert('Selecciona una fecha.'); return; }
+        if (!time) { alert('Selecciona una hora.'); return; }
+        if (isNaN(glucose) || glucose<20 || glucose>600) { alert('Glicemia válida (20-600 mg/dL).'); return; }
+
+        readings.push({ date, time, glucose, context, medication, notes });
+        readings.sort((a,b) => new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
+        saveToStorage();
+        renderAll();
+        document.getElementById('inputGlucose').value = '';
+        document.getElementById('inputMedication').value = '';
+        document.getElementById('inputNotes').value = '';
+        document.getElementById('glucoseAlert').style.display = 'none';
+    }
+
+    function checkGlucoseAlert() {
+        const val = parseFloat(document.getElementById('inputGlucose').value);
+        const context = document.getElementById('inputContext').value;
+        const alertDiv = document.getElementById('glucoseAlert');
+        if (isNaN(val)) { alertDiv.style.display = 'none'; return; }
+        let msg = '';
+        let cls = '';
+        if (val < 70) {
+            msg = '⚠️ ¡Hipoglucemia! Valor bajo. Consulta a tu médico.';
+            cls = 'alert-low';
+        } else if (context === 'Ayunas' && val > 126) {
+            msg = '⚠️ Valor elevado en ayunas. Puede indicar diabetes.';
+            cls = 'alert-high';
+        } else if (context !== 'Ayunas' && val > 200) {
+            msg = '⚠️ Valor muy elevado. Hiperglucemia. Consulta a tu médico.';
+            cls = 'alert-high';
+        } else if (context === 'Ayunas' && val > 100) {
+            msg = '🟡 Glicemia en ayunas alterada. Prediabetes.';
+            cls = 'alert-high';
+        } else {
+            alertDiv.style.display = 'none';
+            return;
+        }
+        alertDiv.textContent = msg;
+        alertDiv.className = 'alert-glucose ' + cls;
+        alertDiv.style.display = 'block';
+    }
+
+    function updateGoal() { updateChart(); }
+
+    function exportCSV() {
+        if (readings.length === 0) { alert('No hay datos para exportar.'); return; }
+        let csv = 'Fecha,Hora,Glicemia (mg/dL),Contexto,Medicación,Notas,Categoría\n';
+        readings.forEach(r => {
+            const cat = getCategory(r.glucose, r.context || 'Aleatorio').label.replace(/[✅🟡🔴⚠️]/g,'').trim();
+            csv += `${r.date||''},${r.time||''},${r.glucose},${r.context||''},${r.medication||''},"${(r.notes||'').replace(/"/g,'""')}",${cat}\n`;
+        });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'glicemia.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    function updateChart() {
+        const ctx = document.getElementById('glucoseChart').getContext('2d');
+        const goal = parseInt(document.getElementById('goalGlucose').value) || 120;
+        const labels = readings.map(r => (r.date||'') + (r.time ? ' '+r.time.substring(0,5) : ''));
+        const data = readings.map(r=>r.glucose);
+
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    { label: 'Glicemia', data, borderColor: '#2c7a7b', backgroundColor: 'rgba(44,122,123,0.05)', tension: 0.3, pointRadius: 4, borderWidth: 2.5 },
+                    { label: 'Meta (mg/dL)', data: Array(readings.length).fill(goal), borderColor: '#b45309', borderDash: [6,4], pointRadius: 0, borderWidth: 1.8 }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top', labels: { usePointStyle: true, padding: 12, font: { size: 10 } } },
+                    tooltip: { callbacks: { afterBody: (ctx) => { const r = readings[ctx[0].dataIndex]; return r?.notes ? '📝 '+r.notes : ''; } } }
+                },
+                scales: {
+                    y: { min: 30, max: 300, ticks: { stepSize: 20 }, title: { display: true, text: 'mg/dL' } },
+                    x: { ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 12 } }
+                },
+                interaction: { mode: 'index', intersect: false }
+            }
+        });
+    }
+
+    window.onload = function() {
+        loadTheme();
+        const now = new Date();
+        document.getElementById('inputDate').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
+        document.getElementById('inputTime').value = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+        loadFromStorage();
+
+        document.getElementById('inputGlucose').addEventListener('input', checkGlucoseAlert);
+        document.getElementById('inputContext').addEventListener('change', checkGlucoseAlert);
+    };
+</script>
+
+<a href="index.html" class="home-fab no-print" title="Volver al inicio">
+    <i class="fas fa-home"></i>
+</a>
+</body>
+</html>

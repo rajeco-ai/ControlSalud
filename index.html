@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control Salud · Hub de Control</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-body: #f4f7fb;
+            --bg-card: #ffffff;
+            --bg-card-hover: #fafcff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #94a3b8;
+            --border-light: #e9edf2;
+            --border-input: #d1d9e6;
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.04);
+            --header-border: #b0c4de;
+            --btn-primary: #1a6e8e;
+            --btn-primary-hover: #0f4c64;
+            --badge-bg: #e2e8f0;
+            --color-pressure: #1a6e8e;
+            --color-glucose: #2c7a7b;
+            --radius: 20px;
+        }
+        [data-theme="dark"] {
+            --bg-body: #0f172a;
+            --bg-card: #1e293b;
+            --bg-card-hover: #273548;
+            --text-primary: #e2e8f0;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-light: #334155;
+            --border-input: #475569;
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.5);
+            --header-border: #334155;
+            --btn-primary: #38bdf8;
+            --btn-primary-hover: #7dd3fc;
+            --badge-bg: #334155;
+            --color-pressure: #38bdf8;
+            --color-glucose: #4abf99;
+        }
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+            background: var(--bg-body);
+            color: var(--text-primary);
+            transition: background 0.2s, color 0.2s;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 40px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid var(--header-border);
+        }
+        header h1 { font-weight: 300; font-size: 2rem; }
+        header h1 span { font-weight: 700; color: var(--btn-primary); }
+        header h1 i { color: var(--btn-primary); margin-right: 8px; }
+        .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .toggle-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-input);
+            border-radius: 40px;
+            padding: 6px 16px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            transition: 0.2s;
+        }
+        .toggle-btn:hover { background: var(--border-light); }
+
+        .hero { text-align: center; margin-bottom: 40px; }
+        .hero h2 { font-size: 2.2rem; font-weight: 300; color: var(--text-secondary); }
+        .hero h2 strong { color: var(--text-primary); font-weight: 700; }
+        .hero p { color: var(--text-muted); font-size: 1.1rem; margin-top: 6px; }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border-light);
+            transition: transform 0.25s, box-shadow 0.25s, background 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.08);
+        }
+        .card .icon { font-size: 3.5rem; margin-bottom: 12px; color: var(--btn-primary); }
+        .card.pressure .icon { color: var(--color-pressure); }
+        .card.glucose .icon { color: var(--color-glucose); }
+        .card h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; }
+        .card p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 16px; line-height: 1.5; }
+        .card .btn {
+            display: inline-block;
+            background: var(--btn-primary);
+            color: white;
+            border: none;
+            padding: 10px 28px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            box-shadow: 0 4px 8px rgba(26, 110, 142, 0.15);
+            margin-top: auto;
+        }
+        .card .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
+        .card .btn i { margin-right: 8px; }
+
+        .summary {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            border: 1px solid var(--border-light);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .summary-item { display: flex; align-items: center; gap: 12px; }
+        .summary-item .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .summary-item .value { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+        .summary-item .value small { font-weight: 400; color: var(--text-muted); font-size: 0.8rem; }
+
+        footer {
+            text-align: center;
+            padding: 20px 0 10px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-light);
+            margin-top: auto;
+        }
+
+        @media (max-width: 600px) {
+            header { flex-direction: column; align-items: start; gap: 10px; }
+            .hero h2 { font-size: 1.6rem; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .summary { flex-direction: column; align-items: center; }
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .card { box-shadow: none !important; border: 1px solid #ccc !important; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1><i class="fas fa-heartbeat"></i><span>Control</span>Salud</h1>
+        <div class="header-actions">
+            <span style="font-size:0.75rem; color:var(--text-muted);">🩺 Tu centro de control</span>
+            <button class="toggle-btn no-print" id="themeToggleBtn" onclick="toggleTheme()">🌙 Modo oscuro</button>
+        </div>
+    </header>
+
+    <div class="hero">
+        <h2>Bienvenido a tu <strong>panel de salud</strong></h2>
+        <p>Selecciona la herramienta que necesites para registrar y monitorear tus signos vitales.</p>
+    </div>
+
+    <div class="summary" id="summaryContainer">
+        <div class="summary-item">
+            <span class="label">🫀 Última presión</span>
+            <span class="value" id="lastBP">--</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">🩸 Última glicemia</span>
+            <span class="value" id="lastGlucose">--</span>
+        </div>
+        <div class="summary-item">
+            <span class="label">📊 Total registros</span>
+            <span class="value" id="totalReadings">0</span>
+        </div>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card pressure">
+            <div class="icon"><i class="fas fa-heart"></i></div>
+            <h3>Presión Arterial</h3>
+            <p>Registra tu presión sistólica, diastólica y pulso. Visualiza tendencias, categorías AHA y alertas de hipotensión.</p>
+            <a href="presion_arterial.html" class="btn"><i class="fas fa-arrow-right"></i> Ir a Presión</a>
+        </div>
+        <div class="card glucose">
+            <div class="icon"><i class="fas fa-droplet"></i></div>
+            <h3>Glicemia</h3>
+            <p>Controla tu nivel de azúcar en sangre. Clasificación ADA, contexto (ayunas/postprandial), alertas y gráfico de tendencia.</p>
+            <a href="glicemia.html" class="btn"><i class="fas fa-arrow-right"></i> Ir a Glicemia</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>Control Salud · Desarrollado con ❤️ para el autocuidado</p>
+        <p>By RajecoSoft · 2026</p>
+    </footer>
+</div>
+
+<script>
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute('data-theme');
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('health_theme', next);
+        const btn = document.getElementById('themeToggleBtn');
+        if (btn) btn.textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+    }
+
+    (function loadTheme() {
+        const saved = localStorage.getItem('health_theme');
+        if (saved) {
+            document.documentElement.setAttribute('data-theme', saved);
+            const btn = document.getElementById('themeToggleBtn');
+            if (btn) btn.textContent = saved === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        }
+    })();
+
+    function getLastReading(keyPrefix) {
+        try {
+            const stored = localStorage.getItem(keyPrefix);
+            if (!stored) return null;
+            const data = JSON.parse(stored);
+            if (!Array.isArray(data) || data.length === 0) return null;
+            const sorted = data.slice().sort((a, b) => {
+                const da = new Date(a.date + 'T' + (a.time || '00:00'));
+                const db = new Date(b.date + 'T' + (b.time || '00:00'));
+                return db - da;
+            });
+            return sorted[0];
+        } catch (e) { return null; }
+    }
+
+    function updateSummary() {
+        const lastBP = getLastReading('bp_readings');
+        if (lastBP) {
+            document.getElementById('lastBP').innerHTML = `${lastBP.sbp}/${lastBP.dbp} <small>mmHg</small>`;
+        } else {
+            document.getElementById('lastBP').textContent = 'Sin registros';
+        }
+
+        const lastGlucose = getLastReading('glucose_readings');
+        if (lastGlucose) {
+            document.getElementById('lastGlucose').innerHTML = `${lastGlucose.glucose} <small>mg/dL</small>`;
+        } else {
+            document.getElementById('lastGlucose').textContent = 'Sin registros';
+        }
+
+        let total = 0;
+        try {
+            const bp = JSON.parse(localStorage.getItem('bp_readings') || '[]');
+            const glu = JSON.parse(localStorage.getItem('glucose_readings') || '[]');
+            total = bp.length + glu.length;
+        } catch (e) { total = 0; }
+        document.getElementById('totalReadings').textContent = total;
+    }
+
+    window.onload = function() {
+        updateSummary();
+        setInterval(updateSummary, 30000);
+    };
+</script>
+</body>
+</html>
