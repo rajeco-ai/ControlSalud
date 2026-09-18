@@ -427,9 +427,9 @@
         } else {
             var today = getTodayString();
             readings = [
-                { date: today, time: '08:00', sbp: 120, dbp: 80, bpm: 80, notes: 'Antes de medica??o' },
-                { date: today, time: '11:30', sbp: 128, dbp: 84, bpm: 71, notes: 'Camin¨¦ 1 km' },
-                { date: today, time: '14:00', sbp: 85, dbp: 55, bpm: 68, notes: 'Hipotensi¨®n de ejemplo' },
+                { date: today, time: '08:00', sbp: 120, dbp: 80, bpm: 80, notes: 'Antes de medicaci\u00F3n' },
+                { date: today, time: '11:30', sbp: 128, dbp: 84, bpm: 71, notes: 'Camin\u00E9 1 km' },
+                { date: today, time: '14:00', sbp: 85, dbp: 55, bpm: 68, notes: 'Hipotensi\u00F3n de ejemplo' },
                 { date: today, time: '17:00', sbp: 118, dbp: 76, bpm: 72, notes: '' },
                 { date: today, time: '21:30', sbp: 120, dbp: 80, bpm: 82, notes: '' }
             ];
@@ -444,7 +444,7 @@
 
     /* ---------- CATEGOR&Iacute;A AHA ---------- */
     function getCategory(sbp, dbp) {
-        if (sbp < 90 || dbp < 60) return { label: 'Hipotensi&oacute;n', cls: 'cat-hypotension' };
+        if (sbp < 90 || dbp < 60) return { label: 'Hipotensi\u00F3n', cls: 'cat-hypotension' };
         if (sbp >= 180 || dbp >= 120) return { label: 'Crisis', cls: 'cat-crisis' };
         if (sbp >= 160 || dbp >= 100) return { label: 'Etapa 2', cls: 'cat-stage2' };
         if (sbp >= 140 || dbp >= 90) return { label: 'Etapa 1', cls: 'cat-stage1' };
@@ -617,7 +617,7 @@
         if (!readings.length) { alert('No hay datos para exportar.'); return; }
         var csv = 'Fecha,Hora,Sist\u00F3lica,Diast\u00F3lica,Pulso,Notas,Categor\u00EDa\n';
         readings.forEach(function (r) {
-            var cat = getCategory(r.sbp, r.dbp).label.replace(/&oacute;/g,'o').replace(/&iacute;/g,'i');
+            var cat = getCategory(r.sbp, r.dbp).label;
             csv += (r.date||'') + ',' + (r.time||'') + ',' + r.sbp + ',' + r.dbp + ',' + (r.bpm||'') +
                    ',"' + (r.notes||'').replace(/"/g,'""') + '",' + cat + '\n';
         });
