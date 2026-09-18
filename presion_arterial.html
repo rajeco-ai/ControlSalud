@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Presi&oacute;n Arterial &middot; Control Salud</title>
+
+    <!-- FAVICON: coraz&oacute;n con latido (rojo) -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 58S4 40 4 22a14 14 0 0 1 28-3 14 14 0 0 1 28 3c0 18-28 36-28 36z' fill='%23b91c1c'/%3E%3Cpath d='M12 30h10l4-8 6 16 6-14 4 6h10' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Aqu&iacute; va tu bloque <style> ... </style> -->
     <title>Control de Presión Arterial · v4</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -319,7 +330,7 @@
                 <div class="stat-item"><div class="number" id="totalReadings">0</div><div class="label">Total tomas</div></div>
                 <div class="stat-item"><div class="number" id="lowCount">0</div><div class="label">📉 Lecturas bajas</div></div>
                 <div class="stat-item"><div class="number" id="highCount">0</div><div class="label">📈 Lecturas altas</div></div>
-                <div class="stat-item"><div class="number" id="normalCount">0</div><div class="label">✅ Lecturas normales</div></div>
+                <div class="stat-item"><div class="number" id="normalCount">0</div><div class="label">�?Lecturas normales</div></div>
             </div>
         </div>
     </div>
@@ -328,7 +339,7 @@
         <div class="card-title" id="formTitle">✏️ Registrar nueva toma</div>
         <div class="form-row">
             <div class="form-group"><label>📅 Fecha</label><input type="date" id="inputDate"></div>
-            <div class="form-group"><label>⏰ Hora</label><input type="time" id="inputTime"></div>
+            <div class="form-group"><label>�?Hora</label><input type="time" id="inputTime"></div>
             <div class="form-group"><label>⬆️ Sistólica</label><input type="number" id="inputSBP" placeholder="120" step="1"></div>
             <div class="form-group"><label>⬇️ Diastólica</label><input type="number" id="inputDBP" placeholder="80" step="1"></div>
             <div class="form-group"><label>💓 Pulso (BPM)</label><input type="number" id="inputBPM" placeholder="72" step="1"></div>
@@ -336,8 +347,8 @@
         <div class="form-row">
             <div class="form-group" style="flex:3;"><label>📝 Notas</label><input type="text" id="inputNotes" placeholder="Ejercicio, estrés, medicación..."></div>
             <div class="form-group" style="flex:0 0 auto; justify-content:end; display:flex; gap:8px;">
-                <button class="btn no-print" id="mainActionBtn" onclick="addEntry()">➕ Agregar</button>
-                <button class="btn btn-secondary no-print" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">✖ Cancelar</button>
+                <button class="btn no-print" id="mainActionBtn" onclick="addEntry()">�?Agregar</button>
+                <button class="btn btn-secondary no-print" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">�?Cancelar</button>
             </div>
         </div>
         <div id="lowAlert" class="alert-low">⚠️ ¡Presión arterial baja! Consulta a un profesional.</div>
@@ -363,7 +374,7 @@
             <span style="font-size:0.75rem; color:var(--text-muted);">💾 Los datos se guardan automáticamente.</span>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
                 <button class="btn btn-sm btn-danger no-print" onclick="exportCSV()">📥 Exportar CSV</button>
-                <button class="btn btn-sm btn-danger no-print" onclick="clearAllData()">🗑️ Eliminar todos</button>
+                <button class="btn btn-sm btn-danger no-print" onclick="clearAllData()">🗑�?Eliminar todos</button>
             </div>
         </div>
     </div>
@@ -381,7 +392,7 @@
         const theme = localStorage.getItem('bp_theme') || 'light';
         document.documentElement.setAttribute('data-theme', theme);
         const btn = document.getElementById('themeToggleBtn');
-        if (btn) btn.textContent = theme === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        if (btn) btn.textContent = theme === 'dark' ? '☀�?Modo claro' : '🌙 Modo oscuro';
     }
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme');
@@ -389,7 +400,7 @@
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('bp_theme', next);
         const btn = document.getElementById('themeToggleBtn');
-        if (btn) btn.textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        if (btn) btn.textContent = next === 'dark' ? '☀�?Modo claro' : '🌙 Modo oscuro';
     }
 
     function loadFromStorage() {
@@ -422,7 +433,7 @@
 
     function getCategory(sbp, dbp) {
         if (sbp < 90 || dbp < 60) return { label: '⚠️ Hipotensión', cls: 'cat-hypotension' };
-        if (sbp >= 180 || dbp >= 120) return { label: '⚫ Crisis', cls: 'cat-crisis' };
+        if (sbp >= 180 || dbp >= 120) return { label: '�?Crisis', cls: 'cat-crisis' };
         if (sbp >= 160 || dbp >= 100) return { label: '🔴 Etapa 2', cls: 'cat-stage2' };
         if (sbp >= 140 || dbp >= 90) return { label: '🟠 Etapa 1', cls: 'cat-stage1' };
         if (sbp >= 130) return { label: '🟡 Normal-Alta', cls: 'cat-elevated' };
@@ -483,7 +494,7 @@
                 <td style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.notes||''}</td>
                 <td class="no-print" style="white-space:nowrap;">
                     <button class="action-btn edit-btn" onclick="editEntry(${realIdx})" title="Editar">✏️</button>
-                    <button class="action-btn" onclick="deleteEntry(${realIdx})" title="Eliminar">🗑️</button>
+                    <button class="action-btn" onclick="deleteEntry(${realIdx})" title="Eliminar">🗑�?/button>
                 </td>
             </tr>`;
         });
@@ -544,13 +555,13 @@
         saveToStorage();
         renderAll();
         cancelEdit();
-        alert('✅ Registro actualizado correctamente.');
+        alert('�?Registro actualizado correctamente.');
     }
 
     function cancelEdit() {
         editingIndex = null;
         document.getElementById('formTitle').textContent = '✏️ Registrar nueva toma';
-        document.getElementById('mainActionBtn').textContent = '➕ Agregar';
+        document.getElementById('mainActionBtn').textContent = '�?Agregar';
         document.getElementById('mainActionBtn').onclick = addEntry;
         document.getElementById('cancelEditBtn').style.display = 'none';
         document.getElementById('lowAlert').style.display = 'none';

@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Control Salud · Hub de Control</title>
+    <title>Control Salud &middot; Dashboard</title>
+
+    <!-- FAVICON: coraz&oacute;n con latido -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 58S4 40 4 22a14 14 0 0 1 28-3 14 14 0 0 1 28 3c0 18-28 36-28 36z' fill='%231a6e8e'/%3E%3Cpath d='M12 30h10l4-8 6 16 6-14 4 6h10' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         :root {
@@ -21,8 +27,11 @@
             --btn-primary: #1a6e8e;
             --btn-primary-hover: #0f4c64;
             --badge-bg: #e2e8f0;
-            --color-pressure: #1a6e8e;
+            --color-pressure: #b91c1c;
             --color-glucose: #2c7a7b;
+            --color-temperature: #d97706;
+            --color-oxygen: #0e7490;
+            --color-imc: #7c3aed;
             --radius: 20px;
         }
         [data-theme="dark"] {
@@ -39,8 +48,11 @@
             --btn-primary: #38bdf8;
             --btn-primary-hover: #7dd3fc;
             --badge-bg: #334155;
-            --color-pressure: #38bdf8;
+            --color-pressure: #f87171;
             --color-glucose: #4abf99;
+            --color-temperature: #fbbf24;
+            --color-oxygen: #22d3ee;
+            --color-imc: #a78bfa;
         }
         body {
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
@@ -53,24 +65,25 @@
             padding: 20px;
         }
         .container {
-            max-width: 1100px;
+            max-width: 1200px;
             margin: 0 auto;
             flex: 1;
             display: flex;
             flex-direction: column;
+            width: 100%;
         }
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             padding-bottom: 15px;
             border-bottom: 3px solid var(--header-border);
         }
-        header h1 { font-weight: 300; font-size: 2rem; }
+        header h1 { font-weight: 300; font-size: 2rem; display: flex; align-items: center; gap: 10px; }
+        header h1 i { color: var(--btn-primary); }
         header h1 span { font-weight: 700; color: var(--btn-primary); }
-        header h1 i { color: var(--btn-primary); margin-right: 8px; }
         .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .toggle-btn {
             background: var(--bg-card);
@@ -81,24 +94,109 @@
             font-size: 0.85rem;
             color: var(--text-primary);
             transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .toggle-btn:hover { background: var(--border-light); }
 
-        .hero { text-align: center; margin-bottom: 40px; }
-        .hero h2 { font-size: 2.2rem; font-weight: 300; color: var(--text-secondary); }
+        .hero { text-align: center; margin-bottom: 30px; }
+        .hero h2 { font-size: 2rem; font-weight: 300; color: var(--text-secondary); }
         .hero h2 strong { color: var(--text-primary); font-weight: 700; }
-        .hero p { color: var(--text-muted); font-size: 1.1rem; margin-top: 6px; }
+        .hero p { color: var(--text-muted); font-size: 1rem; margin-top: 6px; }
+
+        .summary {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 18px 22px;
+            border: 1px solid var(--border-light);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 14px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow-card);
+        }
+        .summary-item { display: flex; align-items: center; gap: 10px; }
+        .summary-item > i {
+            font-size: 1.4rem;
+            width: 32px;
+            text-align: center;
+        }
+        .summary-item .label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        .summary-item .value {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-left: auto;
+        }
+        .summary-item .value small {
+            font-weight: 400;
+            color: var(--text-muted);
+            font-size: 0.72rem;
+        }
+
+        .dashboard-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 22px;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-card);
+            margin-bottom: 30px;
+        }
+        .dashboard-card h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chart-dashboard { height: 340px; position: relative; }
+        .chart-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .chart-filters label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: var(--badge-bg);
+            padding: 6px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            user-select: none;
+            transition: 0.2s;
+        }
+        .chart-filters label:hover { filter: brightness(0.95); }
+        .chart-filters input[type="checkbox"] { accent-color: var(--btn-primary); }
+        .chart-filters .dot {
+            width: 10px; height: 10px; border-radius: 50%; display: inline-block;
+        }
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
             margin-bottom: 40px;
         }
         .card {
             background: var(--bg-card);
             border-radius: var(--radius);
-            padding: 28px 24px;
+            padding: 26px 22px;
             box-shadow: var(--shadow-card);
             border: 1px solid var(--border-light);
             transition: transform 0.25s, box-shadow 0.25s, background 0.2s;
@@ -111,49 +209,41 @@
             transform: translateY(-6px);
             box-shadow: 0 12px 36px rgba(0,0,0,0.08);
         }
-        .card .icon { font-size: 3.5rem; margin-bottom: 12px; color: var(--btn-primary); }
+        .card .icon { font-size: 3rem; margin-bottom: 12px; }
         .card.pressure .icon { color: var(--color-pressure); }
         .card.glucose .icon { color: var(--color-glucose); }
-        .card h3 { font-size: 1.5rem; font-weight: 600; margin-bottom: 6px; }
-        .card p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 16px; line-height: 1.5; }
+        .card.temperature .icon { color: var(--color-temperature); }
+        .card.oxygen .icon { color: var(--color-oxygen); }
+        .card.imc .icon { color: var(--color-imc); }
+        .card h3 { font-size: 1.35rem; font-weight: 600; margin-bottom: 6px; }
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
         .card .btn {
-            display: inline-block;
-            background: var(--btn-primary);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
             color: white;
             border: none;
-            padding: 10px 28px;
+            padding: 10px 26px;
             border-radius: 40px;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: 0.2s;
             text-decoration: none;
-            box-shadow: 0 4px 8px rgba(26, 110, 142, 0.15);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             margin-top: auto;
         }
-        .card .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
-        .card .btn i { margin-right: 8px; }
-
-        .summary {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            padding: 18px 22px;
-            border: 1px solid var(--border-light);
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 16px;
-            margin-bottom: 30px;
-        }
-        .summary-item { display: flex; align-items: center; gap: 12px; }
-        .summary-item .label {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            font-weight: 600;
-        }
-        .summary-item .value { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
-        .summary-item .value small { font-weight: 400; color: var(--text-muted); font-size: 0.8rem; }
+        .card .btn:hover { transform: scale(0.97); filter: brightness(0.9); }
+        .card.pressure .btn { background: var(--color-pressure); }
+        .card.glucose .btn { background: var(--color-glucose); }
+        .card.temperature .btn { background: var(--color-temperature); }
+        .card.oxygen .btn { background: var(--color-oxygen); }
+        .card.imc .btn { background: var(--color-imc); }
 
         footer {
             text-align: center;
@@ -164,11 +254,11 @@
             margin-top: auto;
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 700px) {
             header { flex-direction: column; align-items: start; gap: 10px; }
-            .hero h2 { font-size: 1.6rem; }
+            .hero h2 { font-size: 1.5rem; }
             .cards-grid { grid-template-columns: 1fr; }
-            .summary { flex-direction: column; align-items: center; }
+            .chart-dashboard { height: 260px; }
         }
 
         @media print {
@@ -181,10 +271,17 @@
 <body>
 <div class="container">
     <header>
-        <h1><i class="fas fa-heartbeat"></i><span>Control</span>Salud</h1>
+        <h1>
+            <i class="fas fa-heart-pulse"></i>
+            <span>Control</span>Salud
+        </h1>
         <div class="header-actions">
-            <span style="font-size:0.75rem; color:var(--text-muted);">🩺 Tu centro de control</span>
-            <button class="toggle-btn no-print" id="themeToggleBtn" onclick="toggleTheme()">🌙 Modo oscuro</button>
+            <span style="font-size:0.75rem; color:var(--text-muted);">
+                <i class="fas fa-stethoscope"></i> Tu centro de control
+            </span>
+            <button class="toggle-btn no-print" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i> Modo oscuro
+            </button>
         </div>
     </header>
 
@@ -193,61 +290,136 @@
         <p>Selecciona la herramienta que necesites para registrar y monitorear tus signos vitales.</p>
     </div>
 
+    <!-- RESUMEN -->
     <div class="summary" id="summaryContainer">
         <div class="summary-item">
-            <span class="label">🫀 Última presión</span>
+            <i class="fas fa-heart" style="color:var(--color-pressure);"></i>
+            <span class="label">&Uacute;ltima<br>presi&oacute;n</span>
             <span class="value" id="lastBP">--</span>
         </div>
         <div class="summary-item">
-            <span class="label">🩸 Última glicemia</span>
+            <i class="fas fa-droplet" style="color:var(--color-glucose);"></i>
+            <span class="label">&Uacute;ltima<br>glicemia</span>
             <span class="value" id="lastGlucose">--</span>
         </div>
         <div class="summary-item">
-            <span class="label">📊 Total registros</span>
+            <i class="fas fa-temperature-half" style="color:var(--color-temperature);"></i>
+            <span class="label">&Uacute;ltima<br>temperatura</span>
+            <span class="value" id="lastTemp">--</span>
+        </div>
+        <div class="summary-item">
+            <i class="fas fa-lungs" style="color:var(--color-oxygen);"></i>
+            <span class="label">&Uacute;ltima<br>SpO&#8322;</span>
+            <span class="value" id="lastSpo2">--</span>
+        </div>
+        <div class="summary-item">
+            <i class="fas fa-weight-scale" style="color:var(--color-imc);"></i>
+            <span class="label">&Uacute;ltimo<br>IMC</span>
+            <span class="value" id="lastImc">--</span>
+        </div>
+        <div class="summary-item">
+            <i class="fas fa-chart-line" style="color:var(--btn-primary);"></i>
+            <span class="label">Total<br>registros</span>
             <span class="value" id="totalReadings">0</span>
         </div>
     </div>
 
+    <!-- DASHBOARD -->
+    <div class="dashboard-card">
+        <h3>
+            <i class="fas fa-chart-line"></i>
+            Dashboard combinado &middot; &uacute;ltimas 20 mediciones por m&eacute;trica
+        </h3>
+        <div class="chart-filters" id="chartFilters">
+            <label><input type="checkbox" data-metric="bp" checked><span class="dot" style="background:#b91c1c"></span> Presi&oacute;n sist&oacute;lica</label>
+            <label><input type="checkbox" data-metric="glucose" checked><span class="dot" style="background:#2c7a7b"></span> Glicemia</label>
+            <label><input type="checkbox" data-metric="temp" checked><span class="dot" style="background:#d97706"></span> Temperatura</label>
+            <label><input type="checkbox" data-metric="spo2" checked><span class="dot" style="background:#0e7490"></span> SpO&#8322;</label>
+            <label><input type="checkbox" data-metric="imc" checked><span class="dot" style="background:#7c3aed"></span> IMC</label>
+        </div>
+        <div class="chart-dashboard"><canvas id="dashboardChart"></canvas></div>
+    </div>
+
+    <!-- TARJETAS -->
     <div class="cards-grid">
         <div class="card pressure">
             <div class="icon"><i class="fas fa-heart"></i></div>
-            <h3>Presión Arterial</h3>
-            <p>Registra tu presión sistólica, diastólica y pulso. Visualiza tendencias, categorías AHA y alertas de hipotensión.</p>
-            <a href="presion_arterial.html" class="btn"><i class="fas fa-arrow-right"></i> Ir a Presión</a>
+            <h3>Presi&oacute;n Arterial</h3>
+            <p>Registra presi&oacute;n sist&oacute;lica, diast&oacute;lica y pulso. Categor&iacute;as AHA y alertas de hipotensi&oacute;n.</p>
+            <a href="presion_arterial.html" class="btn">
+                <i class="fas fa-arrow-right"></i> Ir a Presi&oacute;n
+            </a>
         </div>
+
         <div class="card glucose">
             <div class="icon"><i class="fas fa-droplet"></i></div>
             <h3>Glicemia</h3>
-            <p>Controla tu nivel de azúcar en sangre. Clasificación ADA, contexto (ayunas/postprandial), alertas y gráfico de tendencia.</p>
-            <a href="glicemia.html" class="btn"><i class="fas fa-arrow-right"></i> Ir a Glicemia</a>
+            <p>Controla tu az&uacute;car en sangre. Clasificaci&oacute;n ADA, contexto y alertas de hipo/hiperglucemia.</p>
+            <a href="glicemia.html" class="btn">
+                <i class="fas fa-arrow-right"></i> Ir a Glicemia
+            </a>
+        </div>
+
+        <div class="card temperature">
+            <div class="icon"><i class="fas fa-temperature-half"></i></div>
+            <h3>Temperatura</h3>
+            <p>Registra tu temperatura corporal con ajuste por sitio de medici&oacute;n y detecci&oacute;n de fiebre.</p>
+            <a href="temperatura.html" class="btn">
+                <i class="fas fa-arrow-right"></i> Ir a Temperatura
+            </a>
+        </div>
+
+        <div class="card oxygen">
+            <div class="icon"><i class="fas fa-lungs"></i></div>
+            <h3>Ox&iacute;geno en Sangre</h3>
+            <p>Monitorea tu saturaci&oacute;n de ox&iacute;geno y pulso. Alertas por hipoxemia y tendencias.</p>
+            <a href="oxigeno.html" class="btn">
+                <i class="fas fa-arrow-right"></i> Ir a SpO&#8322;
+            </a>
+        </div>
+
+        <div class="card imc">
+            <div class="icon"><i class="fas fa-weight-scale"></i></div>
+            <h3>Peso / IMC</h3>
+            <p>Calcula tu &Iacute;ndice de Masa Corporal, clasificaci&oacute;n OMS y evoluci&oacute;n de peso en el tiempo.</p>
+            <a href="imc.html" class="btn">
+                <i class="fas fa-arrow-right"></i> Ir a IMC
+            </a>
         </div>
     </div>
 
     <footer>
-        <p>Control Salud · Desarrollado con ❤️ para el autocuidado</p>
-        <p>By RajecoSoft · 2026</p>
+        <p>Control Salud &middot; Desarrollado con <i class="fas fa-heart" style="color:var(--color-pressure);"></i> para el autocuidado</p>
+        <p>By RajecoSoft &middot; 2026</p>
     </footer>
 </div>
 
 <script>
+    /* ---------- TEMA ---------- */
+    function applyThemeUI(theme) {
+        const btn = document.getElementById('themeToggleBtn');
+        if (!btn) return;
+        btn.innerHTML = theme === 'dark'
+            ? '<i class="fas fa-sun"></i> Modo claro'
+            : '<i class="fas fa-moon"></i> Modo oscuro';
+    }
+
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme');
         const next = current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('health_theme', next);
-        const btn = document.getElementById('themeToggleBtn');
-        if (btn) btn.textContent = next === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
+        applyThemeUI(next);
+        updateDashboardChart();
     }
 
     (function loadTheme() {
-        const saved = localStorage.getItem('health_theme');
-        if (saved) {
-            document.documentElement.setAttribute('data-theme', saved);
-            const btn = document.getElementById('themeToggleBtn');
-            if (btn) btn.textContent = saved === 'dark' ? '☀️ Modo claro' : '🌙 Modo oscuro';
-        }
+        const saved = localStorage.getItem('health_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+        applyThemeUI(saved);
     })();
 
+    /* ---------- UTILIDADES ---------- */
     function getLastReading(keyPrefix) {
         try {
             const stored = localStorage.getItem(keyPrefix);
@@ -263,33 +435,193 @@
         } catch (e) { return null; }
     }
 
+    function safeParse(key) {
+        try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+        catch (e) { return []; }
+    }
+
+    /* ---------- RESUMEN ---------- */
     function updateSummary() {
         const lastBP = getLastReading('bp_readings');
-        if (lastBP) {
-            document.getElementById('lastBP').innerHTML = `${lastBP.sbp}/${lastBP.dbp} <small>mmHg</small>`;
-        } else {
-            document.getElementById('lastBP').textContent = 'Sin registros';
-        }
+        document.getElementById('lastBP').innerHTML = lastBP
+            ? lastBP.sbp + '/' + lastBP.dbp + ' <small>mmHg</small>'
+            : 'Sin registros';
 
         const lastGlucose = getLastReading('glucose_readings');
-        if (lastGlucose) {
-            document.getElementById('lastGlucose').innerHTML = `${lastGlucose.glucose} <small>mg/dL</small>`;
-        } else {
-            document.getElementById('lastGlucose').textContent = 'Sin registros';
-        }
+        document.getElementById('lastGlucose').innerHTML = lastGlucose
+            ? lastGlucose.glucose + ' <small>mg/dL</small>'
+            : 'Sin registros';
+
+        const lastTemp = getLastReading('temp_readings');
+        document.getElementById('lastTemp').innerHTML = lastTemp
+            ? lastTemp.temperature + ' <small>&deg;C</small>'
+            : 'Sin registros';
+
+        const lastSpo2 = getLastReading('spo2_readings');
+        document.getElementById('lastSpo2').innerHTML = lastSpo2
+            ? lastSpo2.spo2 + '% <small>' + (lastSpo2.bpm ? '&middot; ' + lastSpo2.bpm + ' bpm' : '') + '</small>'
+            : 'Sin registros';
+
+        const lastImc = getLastReading('imc_readings');
+        document.getElementById('lastImc').innerHTML = lastImc
+            ? lastImc.imc + ' <small>' + (lastImc.category || '') + '</small>'
+            : 'Sin registros';
 
         let total = 0;
-        try {
-            const bp = JSON.parse(localStorage.getItem('bp_readings') || '[]');
-            const glu = JSON.parse(localStorage.getItem('glucose_readings') || '[]');
-            total = bp.length + glu.length;
-        } catch (e) { total = 0; }
+        ['bp_readings', 'glucose_readings', 'temp_readings', 'spo2_readings', 'imc_readings']
+            .forEach(function (k) { total += safeParse(k).length; });
         document.getElementById('totalReadings').textContent = total;
     }
 
-    window.onload = function() {
+    /* ---------- DASHBOARD CHART ---------- */
+    var dashboardChart = null;
+
+    function sortByDate(arr) {
+        return arr.slice()
+            .filter(function (r) { return r && r.date; })
+            .sort(function (a, b) {
+                return new Date(a.date + 'T' + (a.time || '00:00')) -
+                       new Date(b.date + 'T' + (b.time || '00:00'));
+            });
+    }
+
+    function buildSeries(key, field) {
+        return sortByDate(safeParse(key)).map(function (r) {
+            return {
+                label: (r.date || '') + (r.time ? ' ' + r.time.substring(0, 5) : ''),
+                value: r[field]
+            };
+        });
+    }
+
+    function normalize(val, min, max) {
+        if (val === undefined || val === null || isNaN(val)) return null;
+        return Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
+    }
+
+    function updateDashboardChart() {
+        var ctx = document.getElementById('dashboardChart').getContext('2d');
+        var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        var textColor = isDark ? '#cbd5e1' : '#475569';
+        var gridColor = isDark ? '#334155' : '#e9edf2';
+
+        var bpSeries      = buildSeries('bp_readings', 'sbp').slice(-20);
+        var glucoseSeries = buildSeries('glucose_readings', 'glucose').slice(-20);
+        var tempSeries    = buildSeries('temp_readings', 'temperature').slice(-20);
+        var spo2Series    = buildSeries('spo2_readings', 'spo2').slice(-20);
+        var imcSeries     = buildSeries('imc_readings', 'imc').slice(-20);
+
+        var datasets = [
+            {
+                label: 'Presi\u00F3n sist\u00F3lica (mmHg)',
+                data: bpSeries.map(function (p) { return normalize(p.value, 70, 200); }),
+                borderColor: '#b91c1c',
+                backgroundColor: 'rgba(185,28,28,0.05)',
+                tension: 0.3, pointRadius: 3, borderWidth: 2,
+                hidden: !document.querySelector('[data-metric="bp"]').checked,
+                rawValues: bpSeries.map(function (p) { return p.value; })
+            },
+            {
+                label: 'Glicemia (mg/dL)',
+                data: glucoseSeries.map(function (p) { return normalize(p.value, 50, 300); }),
+                borderColor: '#2c7a7b',
+                backgroundColor: 'rgba(44,122,123,0.05)',
+                tension: 0.3, pointRadius: 3, borderWidth: 2,
+                hidden: !document.querySelector('[data-metric="glucose"]').checked,
+                rawValues: glucoseSeries.map(function (p) { return p.value; })
+            },
+            {
+                label: 'Temperatura (\u00B0C)',
+                data: tempSeries.map(function (p) { return normalize(p.value, 34, 41); }),
+                borderColor: '#d97706',
+                backgroundColor: 'rgba(217,119,6,0.05)',
+                tension: 0.3, pointRadius: 3, borderWidth: 2,
+                hidden: !document.querySelector('[data-metric="temp"]').checked,
+                rawValues: tempSeries.map(function (p) { return p.value; })
+            },
+            {
+                label: 'SpO\u2082 (%)',
+                data: spo2Series.map(function (p) { return normalize(p.value, 80, 100); }),
+                borderColor: '#0e7490',
+                backgroundColor: 'rgba(14,116,144,0.05)',
+                tension: 0.3, pointRadius: 3, borderWidth: 2,
+                hidden: !document.querySelector('[data-metric="spo2"]').checked,
+                rawValues: spo2Series.map(function (p) { return p.value; })
+            },
+            {
+                label: 'IMC (kg/m\u00B2)',
+                data: imcSeries.map(function (p) { return normalize(p.value, 10, 40); }),
+                borderColor: '#7c3aed',
+                backgroundColor: 'rgba(124,58,237,0.05)',
+                tension: 0.3, pointRadius: 3, borderWidth: 2,
+                hidden: !document.querySelector('[data-metric="imc"]').checked,
+                rawValues: imcSeries.map(function (p) { return p.value; })
+            }
+        ];
+
+        var maxLen = Math.max(
+            bpSeries.length, glucoseSeries.length, tempSeries.length,
+            spo2Series.length, imcSeries.length, 1
+        );
+        var labels = [];
+        for (var i = 0; i < maxLen; i++) labels.push('#' + (i + 1));
+
+        if (dashboardChart) dashboardChart.destroy();
+        dashboardChart = new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: datasets },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 12,
+                            color: textColor,
+                            font: { size: 10 }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                var raw = ctx.dataset.rawValues[ctx.dataIndex];
+                                return ctx.dataset.label + ': ' + (raw !== undefined ? raw : '--');
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 0, max: 100,
+                        ticks: { color: textColor, callback: function (v) { return v + '%'; } },
+                        grid: { color: gridColor },
+                        title: { display: true, text: 'Escala normalizada (0-100)', color: textColor }
+                    },
+                    x: {
+                        ticks: { color: textColor, maxRotation: 0, autoSkip: true, maxTicksLimit: 20 },
+                        grid: { color: gridColor }
+                    }
+                },
+                interaction: { mode: 'index', intersect: false }
+            }
+        });
+    }
+
+    /* ---------- FILTROS ---------- */
+    document.querySelectorAll('#chartFilters input[type="checkbox"]').forEach(function (cb) {
+        cb.addEventListener('change', updateDashboardChart);
+    });
+
+    /* ---------- INIT ---------- */
+    window.onload = function () {
         updateSummary();
-        setInterval(updateSummary, 30000);
+        updateDashboardChart();
+        setInterval(function () {
+            updateSummary();
+            updateDashboardChart();
+        }, 30000);
     };
 </script>
 </body>
