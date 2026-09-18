@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Control de Presi&oacute;n Arterial &middot; Control Salud</title>
 
     <!-- FAVICON: coraz&oacute;n con latido (rojo) -->
@@ -13,10 +11,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- Aqu&iacute; va tu bloque <style> ... </style> -->
-    <title>Control de Presi贸n Arterial 路 v4</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --bg-body: #f4f7fb;
@@ -92,8 +86,9 @@
             padding-bottom: 15px;
             border-bottom: 3px solid var(--header-border);
         }
-        header h1 { font-weight: 300; }
-        header h1 span { font-weight: 700; }
+        header h1 { font-weight: 300; display: flex; align-items: center; gap: 10px; }
+        header h1 i { color: var(--btn-primary); }
+        header h1 span { font-weight: 700; color: var(--btn-primary); }
         .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
         .badge {
             background: var(--badge-bg);
@@ -134,6 +129,9 @@
             color: var(--text-muted);
             margin-bottom: 15px;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .target-group { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; }
@@ -181,6 +179,9 @@
             cursor: pointer;
             transition: 0.2s;
             box-shadow: 0 4px 8px rgba(26, 110, 142, 0.15);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
         }
         .btn:hover { background: var(--btn-primary-hover); transform: scale(0.97); }
         .btn-danger { background: var(--btn-danger-bg); color: var(--text-secondary); box-shadow: none; }
@@ -200,7 +201,7 @@
         .stat-item .number { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
         .stat-item .label { font-size: 0.65rem; text-transform: uppercase; color: var(--text-muted); font-weight: 600; }
 
-        .chart-wrapper { height: 250px; position: relative; margin-top: 5px; }
+        .chart-wrapper { height: 280px; position: relative; margin-top: 5px; }
 
         .table-responsive { overflow-x: auto; margin-top: 15px; border-radius: 16px; border: 1px solid var(--border-light); }
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -227,7 +228,7 @@
         .cat-elevated { color: #b45309; font-weight: 600; }
         .cat-stage1 { color: #c2410c; font-weight: 600; }
         .cat-stage2 { color: #b91c1c; font-weight: 700; }
-        .cat-crisis { color: #7f1d1d; font-weight: 700; background: #fecaca; padding: 2px 8px; border-radius: 30px; }
+        .cat-crisis { color: #7f1d1d; font-weight: 700; background: #fecaca; padding: 2px 8px; border-radius: 30px; display: inline-block; }
         .cat-hypotension {
             background: var(--color-hypotension-bg) !important;
             color: var(--color-hypotension-text) !important;
@@ -248,7 +249,6 @@
         .footer-actions { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 20px; align-items: center; }
         .credit { text-align: right; font-size: 0.75rem; color: var(--text-muted); margin-top: 30px; border-top: 1px solid var(--border-light); padding-top: 20px; }
 
-        /* ----- BOT脫N FLOTANTE "VOLVER AL HOME" ----- */
         .home-fab {
             position: fixed; bottom: 20px; right: 20px;
             width: 56px; height: 56px; border-radius: 50%;
@@ -299,294 +299,297 @@
 <div class="container">
 
     <header>
-        <h1>馃珋 <span>Presi贸n Arterial</span> 路 ControlSalud</h1>
+        <h1>
+            <i class="fas fa-heart-pulse"></i>
+            <span>Presi&oacute;n Arterial</span> &middot; Control Salud
+        </h1>
         <div class="header-actions">
             <a href="index.html" class="toggle-btn no-print" title="Volver al inicio">
                 <i class="fas fa-home"></i> Inicio
             </a>
-            <span class="badge">馃捑 Datos locales</span>
-            <button class="toggle-btn no-print" id="themeToggleBtn" onclick="toggleTheme()">馃寵 Modo oscuro</button>
+            <span class="badge"><i class="fas fa-floppy-disk"></i> Datos locales</span>
+            <button class="toggle-btn no-print" id="themeToggleBtn" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i> Modo oscuro
+            </button>
         </div>
     </header>
 
     <div class="grid-2col">
         <div class="card">
-            <div class="card-title">馃幆 Metas (Objetivos)</div>
+            <div class="card-title"><i class="fas fa-bullseye"></i> Metas (Objetivos)</div>
             <div class="target-group">
-                <label>M谩x. Sist贸lica <input type="number" id="goalSBP" value="120" step="1"></label>
-                <label>M谩x. Diast贸lica <input type="number" id="goalDBP" value="80" step="1"></label>
+                <label>M&aacute;x. Sist&oacute;lica <input type="number" id="goalSBP" value="120" step="1"></label>
+                <label>M&aacute;x. Diast&oacute;lica <input type="number" id="goalDBP" value="80" step="1"></label>
                 <button class="btn btn-sm no-print" style="background:#475569;" onclick="updateGoals()">Actualizar</button>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">L铆neas punteadas en el gr谩fico.</p>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:10px;">L&iacute;neas punteadas en el gr&aacute;fico.</p>
         </div>
         <div class="card">
-            <div class="card-title">馃搳 Resumen general</div>
-            <div class="stats-grid" id="statsContainer">
-                <div class="stat-item"><div class="number" id="avgSBP">--</div><div class="label">Prom. Sist贸lica</div></div>
-                <div class="stat-item"><div class="number" id="avgDBP">--</div><div class="label">Prom. Diast贸lica</div></div>
+            <div class="card-title"><i class="fas fa-chart-line"></i> Resumen general</div>
+            <div class="stats-grid">
+                <div class="stat-item"><div class="number" id="avgSBP">--</div><div class="label">Prom. Sist&oacute;lica</div></div>
+                <div class="stat-item"><div class="number" id="avgDBP">--</div><div class="label">Prom. Diast&oacute;lica</div></div>
                 <div class="stat-item"><div class="number" id="avgBPM">--</div><div class="label">Prom. Pulso</div></div>
-                <div class="stat-item"><div class="number" id="rangeSBP">--</div><div class="label">Rango Sist贸lica</div></div>
-                <div class="stat-item"><div class="number" id="rangeDBP">--</div><div class="label">Rango Diast贸lica</div></div>
+                <div class="stat-item"><div class="number" id="rangeSBP">--</div><div class="label">Rango Sist&oacute;lica</div></div>
+                <div class="stat-item"><div class="number" id="rangeDBP">--</div><div class="label">Rango Diast&oacute;lica</div></div>
                 <div class="stat-item"><div class="number" id="totalReadings">0</div><div class="label">Total tomas</div></div>
-                <div class="stat-item"><div class="number" id="lowCount">0</div><div class="label">馃搲 Lecturas bajas</div></div>
-                <div class="stat-item"><div class="number" id="highCount">0</div><div class="label">馃搱 Lecturas altas</div></div>
-                <div class="stat-item"><div class="number" id="normalCount">0</div><div class="label">鉁?Lecturas normales</div></div>
+                <div class="stat-item"><div class="number" id="lowCount">0</div><div class="label"><i class="fas fa-arrow-down"></i> Bajas</div></div>
+                <div class="stat-item"><div class="number" id="highCount">0</div><div class="label"><i class="fas fa-arrow-up"></i> Altas</div></div>
+                <div class="stat-item"><div class="number" id="normalCount">0</div><div class="label"><i class="fas fa-circle-check"></i> Normales</div></div>
             </div>
         </div>
     </div>
 
     <div class="card" style="margin-bottom:25px;">
-        <div class="card-title" id="formTitle">鉁忥笍 Registrar nueva toma</div>
+        <div class="card-title" id="formTitle"><i class="fas fa-pen"></i> Registrar nueva toma</div>
         <div class="form-row">
-            <div class="form-group"><label>馃搮 Fecha</label><input type="date" id="inputDate"></div>
-            <div class="form-group"><label>鈴?Hora</label><input type="time" id="inputTime"></div>
-            <div class="form-group"><label>猬嗭笍 Sist贸lica</label><input type="number" id="inputSBP" placeholder="120" step="1"></div>
-            <div class="form-group"><label>猬囷笍 Diast贸lica</label><input type="number" id="inputDBP" placeholder="80" step="1"></div>
-            <div class="form-group"><label>馃挀 Pulso (BPM)</label><input type="number" id="inputBPM" placeholder="72" step="1"></div>
+            <div class="form-group"><label><i class="fas fa-calendar"></i> Fecha</label><input type="date" id="inputDate"></div>
+            <div class="form-group"><label><i class="fas fa-clock"></i> Hora</label><input type="time" id="inputTime"></div>
+            <div class="form-group"><label><i class="fas fa-arrow-up"></i> Sist&oacute;lica</label><input type="number" id="inputSBP" placeholder="120" step="1"></div>
+            <div class="form-group"><label><i class="fas fa-arrow-down"></i> Diast&oacute;lica</label><input type="number" id="inputDBP" placeholder="80" step="1"></div>
+            <div class="form-group"><label><i class="fas fa-heart-pulse"></i> Pulso (BPM)</label><input type="number" id="inputBPM" placeholder="72" step="1"></div>
         </div>
         <div class="form-row">
-            <div class="form-group" style="flex:3;"><label>馃摑 Notas</label><input type="text" id="inputNotes" placeholder="Ejercicio, estr茅s, medicaci贸n..."></div>
+            <div class="form-group" style="flex:3;"><label><i class="fas fa-note-sticky"></i> Notas</label><input type="text" id="inputNotes" placeholder="Ejercicio, estr&eacute;s, medicaci&oacute;n..."></div>
             <div class="form-group" style="flex:0 0 auto; justify-content:end; display:flex; gap:8px;">
-                <button class="btn no-print" id="mainActionBtn" onclick="addEntry()">鉃?Agregar</button>
-                <button class="btn btn-secondary no-print" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;">鉁?Cancelar</button>
+                <button class="btn no-print" id="mainActionBtn" onclick="addEntry()"><i class="fas fa-plus"></i> Agregar</button>
+                <button class="btn btn-secondary no-print" id="cancelEditBtn" onclick="cancelEdit()" style="display:none;"><i class="fas fa-xmark"></i> Cancelar</button>
             </div>
         </div>
-        <div id="lowAlert" class="alert-low">鈿狅笍 隆Presi贸n arterial baja! Consulta a un profesional.</div>
+        <div id="lowAlert" class="alert-low"><i class="fas fa-triangle-exclamation"></i> &iexcl;Presi&oacute;n arterial baja! Consulta a un profesional.</div>
     </div>
 
     <div class="card" style="margin-bottom:25px;">
-        <div class="card-title">馃搱 Tendencia de Presi贸n</div>
+        <div class="card-title"><i class="fas fa-chart-line"></i> Tendencia de Presi&oacute;n</div>
         <div class="chart-wrapper"><canvas id="bpChart"></canvas></div>
     </div>
 
     <div class="card">
-        <div class="card-title">馃搵 Historial de tomas</div>
+        <div class="card-title"><i class="fas fa-list"></i> Historial de tomas</div>
         <div class="table-responsive">
             <table>
                 <thead><tr>
-                    <th>Fecha</th><th>Hora</th><th>Sist贸lica</th><th>Diast贸lica</th><th>Pulso</th>
-                    <th>Categor铆a (AHA)</th><th>Notas</th><th style="width:80px;" class="no-print">Acciones</th>
+                    <th>Fecha</th><th>Hora</th><th>Sist&oacute;lica</th><th>Diast&oacute;lica</th><th>Pulso</th>
+                    <th>Categor&iacute;a (AHA)</th><th>Notas</th><th style="width:80px;" class="no-print">Acciones</th>
                 </tr></thead>
-                <tbody id="tableBody"><tr><td colspan="8" class="empty-msg">No hay registros a煤n.</td></tr></tbody>
+                <tbody id="tableBody"><tr><td colspan="8" class="empty-msg">No hay registros a&uacute;n.</td></tr></tbody>
             </table>
         </div>
         <div class="footer-actions">
-            <span style="font-size:0.75rem; color:var(--text-muted);">馃捑 Los datos se guardan autom谩ticamente.</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);"><i class="fas fa-floppy-disk"></i> Los datos se guardan autom&aacute;ticamente.</span>
             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button class="btn btn-sm btn-danger no-print" onclick="exportCSV()">馃摜 Exportar CSV</button>
-                <button class="btn btn-sm btn-danger no-print" onclick="clearAllData()">馃棏锔?Eliminar todos</button>
+                <button class="btn btn-sm btn-danger no-print" onclick="exportCSV()"><i class="fas fa-download"></i> Exportar CSV</button>
+                <button class="btn btn-sm btn-danger no-print" onclick="clearAllData()"><i class="fas fa-trash"></i> Eliminar todos</button>
             </div>
         </div>
     </div>
 
-    <div class="credit">v4 路 Conteo de lecturas bajas, altas y normales 路 Edici贸n de registros</div>
+    <div class="credit">v4 &middot; Conteo de lecturas bajas, altas y normales &middot; Edici&oacute;n de registros</div>
 </div>
 
 <script>
-    let readings = [];
-    let chartInstance = null;
-    let editingIndex = null;
+    var readings = [];
+    var chartInstance = null;
+    var editingIndex = null;
 
-    // Cargar tema guardado (usa ID espec铆fico para no afectar el bot贸n "Inicio")
+    /* ---------- TEMA ---------- */
+    function applyThemeUI(theme) {
+        var btn = document.getElementById('themeToggleBtn');
+        if (!btn) return;
+        btn.innerHTML = theme === 'dark'
+            ? '<i class="fas fa-sun"></i> Modo claro'
+            : '<i class="fas fa-moon"></i> Modo oscuro';
+    }
     function loadTheme() {
-        const theme = localStorage.getItem('bp_theme') || 'light';
+        var theme = localStorage.getItem('bp_theme') || 'light';
         document.documentElement.setAttribute('data-theme', theme);
-        const btn = document.getElementById('themeToggleBtn');
-        if (btn) btn.textContent = theme === 'dark' ? '鈽�锔?Modo claro' : '馃寵 Modo oscuro';
+        applyThemeUI(theme);
     }
     function toggleTheme() {
-        const current = document.documentElement.getAttribute('data-theme');
-        const next = current === 'dark' ? 'light' : 'dark';
+        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('bp_theme', next);
-        const btn = document.getElementById('themeToggleBtn');
-        if (btn) btn.textContent = next === 'dark' ? '鈽�锔?Modo claro' : '馃寵 Modo oscuro';
+        applyThemeUI(next);
+        updateChart();
     }
 
+    /* ---------- STORAGE ---------- */
+    function saveToStorage() { localStorage.setItem('bp_readings', JSON.stringify(readings)); }
+    function getTodayString() {
+        var d = new Date();
+        return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    }
     function loadFromStorage() {
-        const stored = localStorage.getItem('bp_readings');
+        var stored = localStorage.getItem('bp_readings');
         if (stored) {
             try { readings = JSON.parse(stored); }
             catch (e) { readings = []; }
         } else {
-            const today = getTodayString();
+            var today = getTodayString();
             readings = [
-                { date: today, time: '08:00', sbp: 120, dbp: 80, bpm: 80, notes: 'Antes de medicaci贸n' },
-                { date: today, time: '11:30', sbp: 128, dbp: 84, bpm: 71, notes: 'Camin茅 1 km' },
-                { date: today, time: '14:00', sbp: 85, dbp: 55, bpm: 68, notes: 'Hipotensi贸n de ejemplo' },
+                { date: today, time: '08:00', sbp: 120, dbp: 80, bpm: 80, notes: 'Antes de medica??o' },
+                { date: today, time: '11:30', sbp: 128, dbp: 84, bpm: 71, notes: 'Caminé 1 km' },
+                { date: today, time: '14:00', sbp: 85, dbp: 55, bpm: 68, notes: 'Hipotensión de ejemplo' },
                 { date: today, time: '17:00', sbp: 118, dbp: 76, bpm: 72, notes: '' },
-                { date: today, time: '21:30', sbp: 120, dbp: 80, bpm: 82, notes: '' },
+                { date: today, time: '21:30', sbp: 120, dbp: 80, bpm: 82, notes: '' }
             ];
             saveToStorage();
         }
-        readings = readings.filter(r => r && typeof r === 'object' && r.sbp !== undefined);
-        readings.sort((a,b) => new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
+        readings = readings.filter(function (r) { return r && typeof r === 'object' && r.sbp !== undefined; });
+        readings.sort(function (a,b) {
+            return new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00'));
+        });
         renderAll();
     }
 
-    function saveToStorage() { localStorage.setItem('bp_readings', JSON.stringify(readings)); }
-
-    function getTodayString() {
-        const d = new Date();
-        return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-    }
-
+    /* ---------- CATEGOR&Iacute;A AHA ---------- */
     function getCategory(sbp, dbp) {
-        if (sbp < 90 || dbp < 60) return { label: '鈿狅笍 Hipotensi贸n', cls: 'cat-hypotension' };
-        if (sbp >= 180 || dbp >= 120) return { label: '鈿?Crisis', cls: 'cat-crisis' };
-        if (sbp >= 160 || dbp >= 100) return { label: '馃敶 Etapa 2', cls: 'cat-stage2' };
-        if (sbp >= 140 || dbp >= 90) return { label: '馃煚 Etapa 1', cls: 'cat-stage1' };
-        if (sbp >= 130) return { label: '馃煛 Normal-Alta', cls: 'cat-elevated' };
-        return { label: '馃煝 Normal', cls: 'cat-normal' };
+        if (sbp < 90 || dbp < 60) return { label: 'Hipotensi&oacute;n', cls: 'cat-hypotension' };
+        if (sbp >= 180 || dbp >= 120) return { label: 'Crisis', cls: 'cat-crisis' };
+        if (sbp >= 160 || dbp >= 100) return { label: 'Etapa 2', cls: 'cat-stage2' };
+        if (sbp >= 140 || dbp >= 90) return { label: 'Etapa 1', cls: 'cat-stage1' };
+        if (sbp >= 130) return { label: 'Normal-Alta', cls: 'cat-elevated' };
+        return { label: 'Normal', cls: 'cat-normal' };
     }
 
-    function renderAll() {
-        updateStats();
-        renderTable();
-        updateChart();
-    }
+    /* ---------- RENDER ---------- */
+    function renderAll() { updateStats(); renderTable(); updateChart(); }
 
     function updateStats() {
-        const valid = readings.filter(r => r.sbp && r.dbp);
-        const count = valid.length;
-        document.getElementById('totalReadings').textContent = count;
-        if (count === 0) {
-            ['avgSBP','avgDBP','avgBPM','rangeSBP','rangeDBP','lowCount','highCount','normalCount'].forEach(id => document.getElementById(id).textContent = '--');
+        var valid = readings.filter(function (r) { return r.sbp && r.dbp; });
+        document.getElementById('totalReadings').textContent = valid.length;
+        if (!valid.length) {
+            ['avgSBP','avgDBP','avgBPM','rangeSBP','rangeDBP','lowCount','highCount','normalCount'].forEach(function (id) {
+                document.getElementById(id).textContent = '--';
+            });
             return;
         }
-        const sbps = valid.map(r=>r.sbp), dbps = valid.map(r=>r.dbp), bpms = valid.filter(r=>r.bpm).map(r=>r.bpm);
-        document.getElementById('avgSBP').textContent = (sbps.reduce((a,b)=>a+b,0)/sbps.length).toFixed(1);
-        document.getElementById('avgDBP').textContent = (dbps.reduce((a,b)=>a+b,0)/dbps.length).toFixed(1);
-        document.getElementById('avgBPM').textContent = bpms.length ? (bpms.reduce((a,b)=>a+b,0)/bpms.length).toFixed(1) : '--';
-        document.getElementById('rangeSBP').textContent = Math.min(...sbps)+' - '+Math.max(...sbps);
-        document.getElementById('rangeDBP').textContent = Math.min(...dbps)+' - '+Math.max(...dbps);
+        var sbps = valid.map(function (r) { return r.sbp; });
+        var dbps = valid.map(function (r) { return r.dbp; });
+        var bpms = valid.filter(function (r) { return r.bpm; }).map(function (r) { return r.bpm; });
 
-        const lowReadings = valid.filter(r => r.sbp < 90 || r.dbp < 60).length;
-        document.getElementById('lowCount').textContent = lowReadings;
+        document.getElementById('avgSBP').textContent = (sbps.reduce(function(a,b){return a+b;},0)/sbps.length).toFixed(1);
+        document.getElementById('avgDBP').textContent = (dbps.reduce(function(a,b){return a+b;},0)/dbps.length).toFixed(1);
+        document.getElementById('avgBPM').textContent = bpms.length ? (bpms.reduce(function(a,b){return a+b;},0)/bpms.length).toFixed(1) : '--';
+        document.getElementById('rangeSBP').textContent = Math.min.apply(null, sbps) + ' - ' + Math.max.apply(null, sbps);
+        document.getElementById('rangeDBP').textContent = Math.min.apply(null, dbps) + ' - ' + Math.max.apply(null, dbps);
 
-        const highReadings = valid.filter(r => {
-            const cat = getCategory(r.sbp, r.dbp);
+        var low = valid.filter(function (r) { return r.sbp < 90 || r.dbp < 60; }).length;
+        document.getElementById('lowCount').textContent = low;
+
+        var high = valid.filter(function (r) {
+            var cat = getCategory(r.sbp, r.dbp);
             return cat.cls !== 'cat-normal' && cat.cls !== 'cat-hypotension';
         }).length;
-        document.getElementById('highCount').textContent = highReadings;
+        document.getElementById('highCount').textContent = high;
 
-        const normalReadings = valid.filter(r => getCategory(r.sbp, r.dbp).cls === 'cat-normal').length;
-        document.getElementById('normalCount').textContent = normalReadings;
+        var normal = valid.filter(function (r) { return getCategory(r.sbp, r.dbp).cls === 'cat-normal'; }).length;
+        document.getElementById('normalCount').textContent = normal;
     }
 
     function renderTable() {
-        const tbody = document.getElementById('tableBody');
-        if (readings.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No hay registros a煤n.</td></tr>';
+        var tbody = document.getElementById('tableBody');
+        if (!readings.length) {
+            tbody.innerHTML = '<tr><td colspan="8" class="empty-msg">No hay registros a&uacute;n.</td></tr>';
             return;
         }
-        let html = '';
-        [...readings].reverse().forEach((r, idx) => {
-            const realIdx = readings.length - 1 - idx;
-            const cat = getCategory(r.sbp, r.dbp);
-            html += `<tr>
-                <td>${r.date||''}</td>
-                <td>${r.time||''}</td>
-                <td><strong>${r.sbp}</strong></td>
-                <td><strong>${r.dbp}</strong></td>
-                <td>${r.bpm||''}</td>
-                <td><span class="${cat.cls}">${cat.label}</span></td>
-                <td style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${r.notes||''}</td>
-                <td class="no-print" style="white-space:nowrap;">
-                    <button class="action-btn edit-btn" onclick="editEntry(${realIdx})" title="Editar">鉁忥笍</button>
-                    <button class="action-btn" onclick="deleteEntry(${realIdx})" title="Eliminar">馃棏锔?/button>
-                </td>
-            </tr>`;
+        var html = '';
+        readings.slice().reverse().forEach(function (r, idx) {
+            var realIdx = readings.length - 1 - idx;
+            var cat = getCategory(r.sbp, r.dbp);
+            html += '<tr>' +
+                '<td>' + (r.date||'') + '</td>' +
+                '<td>' + (r.time||'') + '</td>' +
+                '<td><strong>' + r.sbp + '</strong></td>' +
+                '<td><strong>' + r.dbp + '</strong></td>' +
+                '<td>' + (r.bpm||'') + '</td>' +
+                '<td><span class="' + cat.cls + '">' + cat.label + '</span></td>' +
+                '<td style="max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + (r.notes||'') + '</td>' +
+                '<td class="no-print" style="white-space:nowrap;">' +
+                    '<button class="action-btn edit-btn" onclick="editEntry(' + realIdx + ')" title="Editar"><i class="fas fa-pen"></i></button>' +
+                    '<button class="action-btn" onclick="deleteEntry(' + realIdx + ')" title="Eliminar"><i class="fas fa-trash"></i></button>' +
+                '</td>' +
+            '</tr>';
         });
         tbody.innerHTML = html;
     }
 
-    function deleteEntry(index) {
-        if (!confirm('驴Eliminar esta toma?')) return;
-        readings.splice(index, 1);
-        saveToStorage();
-        renderAll();
+    /* ---------- CRUD ---------- */
+    function deleteEntry(i) {
+        if (!confirm('\u00BFEliminar esta toma?')) return;
+        readings.splice(i, 1); saveToStorage(); renderAll();
         if (editingIndex !== null) cancelEdit();
     }
-
     function clearAllData() {
-        if (!confirm('驴Eliminar TODOS los registros?')) return;
-        readings = [];
-        saveToStorage();
-        renderAll();
-        cancelEdit();
+        if (!confirm('\u00BF Eliminar TODOS los registros?')) return;
+        readings = []; saveToStorage(); renderAll(); cancelEdit();
     }
-
-    function editEntry(index) {
-        const r = readings[index];
-        if (!r) return;
+    function editEntry(i) {
+        var r = readings[i]; if (!r) return;
         document.getElementById('inputDate').value = r.date || '';
         document.getElementById('inputTime').value = r.time || '';
         document.getElementById('inputSBP').value = r.sbp || '';
         document.getElementById('inputDBP').value = r.dbp || '';
         document.getElementById('inputBPM').value = r.bpm || '';
         document.getElementById('inputNotes').value = r.notes || '';
-        editingIndex = index;
-        document.getElementById('formTitle').textContent = '鉁忥笍 Editando toma #' + (index+1);
-        document.getElementById('mainActionBtn').textContent = '馃捑 Actualizar';
+        editingIndex = i;
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-pen"></i> Editando toma #' + (i+1);
+        document.getElementById('mainActionBtn').innerHTML = '<i class="fas fa-floppy-disk"></i> Actualizar';
         document.getElementById('mainActionBtn').onclick = updateEntry;
         document.getElementById('cancelEditBtn').style.display = 'inline-block';
         checkLowPressure();
-        document.querySelector('.card').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
-
     function updateEntry() {
         if (editingIndex === null) return;
-        const date = document.getElementById('inputDate').value;
-        const time = document.getElementById('inputTime').value;
-        const sbp = parseFloat(document.getElementById('inputSBP').value);
-        const dbp = parseFloat(document.getElementById('inputDBP').value);
-        const bpm = parseFloat(document.getElementById('inputBPM').value);
-        const notes = document.getElementById('inputNotes').value.trim();
+        var date = document.getElementById('inputDate').value;
+        var time = document.getElementById('inputTime').value;
+        var sbp = parseFloat(document.getElementById('inputSBP').value);
+        var dbp = parseFloat(document.getElementById('inputDBP').value);
+        var bpm = parseFloat(document.getElementById('inputBPM').value);
+        var notes = document.getElementById('inputNotes').value.trim();
 
         if (!date) { alert('Selecciona una fecha.'); return; }
         if (!time) { alert('Selecciona una hora.'); return; }
-        if (isNaN(sbp) || sbp<50 || sbp>250) { alert('Sist贸lica v谩lida (50-250).'); return; }
-        if (isNaN(dbp) || dbp<30 || dbp>180) { alert('Diast贸lica v谩lida (30-180).'); return; }
-        if (bpm && (isNaN(bpm) || bpm<30 || bpm>200)) { alert('Pulso v谩lido (30-200).'); return; }
+        if (isNaN(sbp) || sbp < 50 || sbp > 250) { alert('Sist\u00F3lica v\u00E1lida (50-250).'); return; }
+        if (isNaN(dbp) || dbp < 30 || dbp > 180) { alert('Diast\u00F3lica v\u00E1lida (30-180).'); return; }
+        if (bpm && (isNaN(bpm) || bpm < 30 || bpm > 200)) { alert('Pulso v\u00E1lido (30-200).'); return; }
 
-        readings[editingIndex] = { date, time, sbp, dbp, bpm: bpm||null, notes };
-        readings.sort((a,b) => new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
-        saveToStorage();
-        renderAll();
-        cancelEdit();
-        alert('鉁?Registro actualizado correctamente.');
+        readings[editingIndex] = { date: date, time: time, sbp: sbp, dbp: dbp, bpm: bpm || null, notes: notes };
+        readings.sort(function (a,b) {
+            return new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00'));
+        });
+        saveToStorage(); renderAll(); cancelEdit();
+        alert('\u2705 Registro actualizado correctamente.');
     }
-
     function cancelEdit() {
         editingIndex = null;
-        document.getElementById('formTitle').textContent = '鉁忥笍 Registrar nueva toma';
-        document.getElementById('mainActionBtn').textContent = '鉃?Agregar';
+        document.getElementById('formTitle').innerHTML = '<i class="fas fa-pen"></i> Registrar nueva toma';
+        document.getElementById('mainActionBtn').innerHTML = '<i class="fas fa-plus"></i> Agregar';
         document.getElementById('mainActionBtn').onclick = addEntry;
         document.getElementById('cancelEditBtn').style.display = 'none';
         document.getElementById('lowAlert').style.display = 'none';
     }
-
     function addEntry() {
         if (editingIndex !== null) cancelEdit();
-
-        const date = document.getElementById('inputDate').value;
-        const time = document.getElementById('inputTime').value;
-        const sbp = parseFloat(document.getElementById('inputSBP').value);
-        const dbp = parseFloat(document.getElementById('inputDBP').value);
-        const bpm = parseFloat(document.getElementById('inputBPM').value);
-        const notes = document.getElementById('inputNotes').value.trim();
+        var date = document.getElementById('inputDate').value;
+        var time = document.getElementById('inputTime').value;
+        var sbp = parseFloat(document.getElementById('inputSBP').value);
+        var dbp = parseFloat(document.getElementById('inputDBP').value);
+        var bpm = parseFloat(document.getElementById('inputBPM').value);
+        var notes = document.getElementById('inputNotes').value.trim();
 
         if (!date) { alert('Selecciona una fecha.'); return; }
         if (!time) { alert('Selecciona una hora.'); return; }
-        if (isNaN(sbp) || sbp<50 || sbp>250) { alert('Sist贸lica v谩lida (50-250).'); return; }
-        if (isNaN(dbp) || dbp<30 || dbp>180) { alert('Diast贸lica v谩lida (30-180).'); return; }
-        if (bpm && (isNaN(bpm) || bpm<30 || bpm>200)) { alert('Pulso v谩lido (30-200).'); return; }
+        if (isNaN(sbp) || sbp < 50 || sbp > 250) { alert('Sist\u00F3lica v\u00E1lida (50-250).'); return; }
+        if (isNaN(dbp) || dbp < 30 || dbp > 180) { alert('Diast\u00F3lica v\u00E1lida (30-180).'); return; }
+        if (bpm && (isNaN(bpm) || bpm < 30 || bpm > 200)) { alert('Pulso v\u00E1lido (30-200).'); return; }
 
-        readings.push({ date, time, sbp, dbp, bpm: bpm||null, notes });
-        readings.sort((a,b) => new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00')));
-        saveToStorage();
-        renderAll();
+        readings.push({ date: date, time: time, sbp: sbp, dbp: dbp, bpm: bpm || null, notes: notes });
+        readings.sort(function (a,b) {
+            return new Date(a.date+'T'+(a.time||'00:00')) - new Date(b.date+'T'+(b.time||'00:00'));
+        });
+        saveToStorage(); renderAll();
         document.getElementById('inputSBP').value = '';
         document.getElementById('inputDBP').value = '';
         document.getElementById('inputBPM').value = '';
@@ -594,10 +597,11 @@
         document.getElementById('lowAlert').style.display = 'none';
     }
 
+    /* ---------- ALERTA ---------- */
     function checkLowPressure() {
-        const sbp = parseFloat(document.getElementById('inputSBP').value);
-        const dbp = parseFloat(document.getElementById('inputDBP').value);
-        const alertDiv = document.getElementById('lowAlert');
+        var sbp = parseFloat(document.getElementById('inputSBP').value);
+        var dbp = parseFloat(document.getElementById('inputDBP').value);
+        var alertDiv = document.getElementById('lowAlert');
         if ((!isNaN(sbp) && sbp < 90) || (!isNaN(dbp) && dbp < 60)) {
             alertDiv.style.display = 'block';
         } else {
@@ -605,41 +609,47 @@
         }
     }
 
+    /* ---------- METAS ---------- */
     function updateGoals() { updateChart(); }
 
+    /* ---------- EXPORT CSV ---------- */
     function exportCSV() {
-        if (readings.length === 0) { alert('No hay datos para exportar.'); return; }
-        let csv = 'Fecha,Hora,Sist贸lica,Diast贸lica,Pulso,Notas,Categor铆a\n';
-        readings.forEach(r => {
-            const cat = getCategory(r.sbp, r.dbp).label.replace(/[鈿狅笍馃煝馃敶馃煚馃煛鈿玗/g,'').trim();
-            csv += `${r.date||''},${r.time||''},${r.sbp},${r.dbp},${r.bpm||''},"${(r.notes||'').replace(/"/g,'""')}",${cat}\n`;
+        if (!readings.length) { alert('No hay datos para exportar.'); return; }
+        var csv = 'Fecha,Hora,Sist\u00F3lica,Diast\u00F3lica,Pulso,Notas,Categor\u00EDa\n';
+        readings.forEach(function (r) {
+            var cat = getCategory(r.sbp, r.dbp).label.replace(/&oacute;/g,'o').replace(/&iacute;/g,'i');
+            csv += (r.date||'') + ',' + (r.time||'') + ',' + r.sbp + ',' + r.dbp + ',' + (r.bpm||'') +
+                   ',"' + (r.notes||'').replace(/"/g,'""') + '",' + cat + '\n';
         });
-        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
         link.download = 'presion_arterial.csv';
         link.click();
         URL.revokeObjectURL(link.href);
     }
 
+    /* ---------- CHART ---------- */
     function updateChart() {
-        const ctx = document.getElementById('bpChart').getContext('2d');
-        const goalSBP = parseInt(document.getElementById('goalSBP').value) || 120;
-        const goalDBP = parseInt(document.getElementById('goalDBP').value) || 80;
-        const labels = readings.map(r => (r.date||'') + (r.time ? ' '+r.time.substring(0,5) : ''));
-        const sbpData = readings.map(r=>r.sbp);
-        const dbpData = readings.map(r=>r.dbp);
+        var ctx = document.getElementById('bpChart').getContext('2d');
+        var goalSBP = parseInt(document.getElementById('goalSBP').value) || 120;
+        var goalDBP = parseInt(document.getElementById('goalDBP').value) || 80;
+        var labels = readings.map(function (r) {
+            return (r.date||'') + (r.time ? ' '+r.time.substring(0,5) : '');
+        });
+        var sbpData = readings.map(function (r) { return r.sbp; });
+        var dbpData = readings.map(function (r) { return r.dbp; });
 
         if (chartInstance) chartInstance.destroy();
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels,
+                labels: labels,
                 datasets: [
-                    { label: 'Sist贸lica', data: sbpData, borderColor: '#b91c1c', backgroundColor: 'rgba(185,28,28,0.05)', tension: 0.3, pointRadius: 4, borderWidth: 2.5 },
-                    { label: 'Diast贸lica', data: dbpData, borderColor: '#1a6e8e', backgroundColor: 'rgba(26,110,142,0.05)', tension: 0.3, pointRadius: 4, borderWidth: 2.5 },
-                    { label: 'Meta Sist贸lica', data: Array(readings.length).fill(goalSBP), borderColor: '#b45309', borderDash: [6,4], pointRadius: 0, borderWidth: 1.8 },
-                    { label: 'Meta Diast贸lica', data: Array(readings.length).fill(goalDBP), borderColor: '#2563eb', borderDash: [6,4], pointRadius: 0, borderWidth: 1.8 }
+                    { label: 'Sist\u00F3lica', data: sbpData, borderColor: '#b91c1c', backgroundColor: 'rgba(185,28,28,0.05)', tension: 0.3, pointRadius: 4, borderWidth: 2.5 },
+                    { label: 'Diast\u00F3lica', data: dbpData, borderColor: '#1a6e8e', backgroundColor: 'rgba(26,110,142,0.05)', tension: 0.3, pointRadius: 4, borderWidth: 2.5 },
+                    { label: 'Meta Sist\u00F3lica', data: Array(readings.length).fill(goalSBP), borderColor: '#b45309', borderDash: [6,4], pointRadius: 0, borderWidth: 1.8 },
+                    { label: 'Meta Diast\u00F3lica', data: Array(readings.length).fill(goalDBP), borderColor: '#2563eb', borderDash: [6,4], pointRadius: 0, borderWidth: 1.8 }
                 ]
             },
             options: {
@@ -647,7 +657,10 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: { position: 'top', labels: { usePointStyle: true, padding: 12, font: { size: 10 } } },
-                    tooltip: { callbacks: { afterBody: (ctx) => { const r = readings[ctx[0].dataIndex]; return r?.notes ? '馃摑 '+r.notes : ''; } } }
+                    tooltip: { callbacks: { afterBody: function (ctx) {
+                        var r = readings[ctx[0].dataIndex];
+                        return r && r.notes ? '\uD83D\uDCDD ' + r.notes : '';
+                    }}}
                 },
                 scales: {
                     y: { min: 50, max: 200, ticks: { stepSize: 10 }, title: { display: true, text: 'mmHg' } },
@@ -658,11 +671,14 @@
         });
     }
 
-    window.onload = function() {
+    /* ---------- INIT ---------- */
+    window.onload = function () {
         loadTheme();
-        const now = new Date();
-        document.getElementById('inputDate').value = now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0')+'-'+String(now.getDate()).padStart(2,'0');
-        document.getElementById('inputTime').value = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+        var now = new Date();
+        document.getElementById('inputDate').value = getTodayString();
+        document.getElementById('inputTime').value =
+            String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+
         loadFromStorage();
 
         document.getElementById('inputSBP').addEventListener('input', checkLowPressure);

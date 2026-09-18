@@ -3,21 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Peso / IMC &middot; Control Salud</title>
 
     <!-- FAVICON: coraz&oacute;n con latido (violeta) -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 58S4 40 4 22a14 14 0 0 1 28-3 14 14 0 0 1 28 3c0 18-28 36-28 36z' fill='%237c3aed'/%3E%3Cpath d='M12 30h10l4-8 6 16 6-14 4 6h10' fill='none' stroke='%23ffffff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-    <!-- Aqu&iacute; va tu bloque <style> ... </style> -->
-    <title>Peso / IMC &middot; Control Salud</title>
-
-    <!-- FAVICON: balanza violeta -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237c3aed'/%3E%3Cpath d='M32 14v8M22 26h20M32 22a10 10 0 0 0-9 5M32 22a10 10 0 0 1 9 5M32 50a10 10 0 0 0 9-5M32 50a10 10 0 0 1-9-5' stroke='%23fff' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='32' cy='50' r='10' fill='none' stroke='%23fff' stroke-width='3'/%3E%3Ccircle cx='32' cy='50' r='3' fill='%23fff'/%3E%3C/svg%3E">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -176,6 +165,11 @@
             border-color: var(--btn-primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+        }
+        .form-group input[readonly] {
+            background: var(--badge-bg);
+            font-weight: 700;
+            text-align: center;
         }
 
         .btn {
@@ -629,4 +623,150 @@
         var cat = getCategory(imc);
         var msg = '', cls = '';
 
-        if (cat.cls === 'cat-under') { msg = '\u26A0\uFE0F Bajo peso. Considera consultar a un nutricionista.'; cls = '
+        if (cat.cls === 'cat-under') {
+            msg = '\u26A0\uFE0F Bajo peso. Considera consultar a un nutricionista.';
+            cls = 'alert-low';
+        } else if (cat.cls === 'cat-obese3') {
+            msg = '\uD83D\uDEA8 Obesidad grado III. Consulta a tu m\u00E9dico.';
+            cls = 'alert-high';
+        } else if (cat.cls === 'cat-obese2') {
+            msg = '\u26A0\uFE0F Obesidad grado II. Consulta a tu m\u00E9dico.';
+            cls = 'alert-high';
+        } else if (cat.cls === 'cat-obese1') {
+            msg = '\u26A0\uFE0F Obesidad grado I. Se recomienda seguimiento.';
+            cls = 'alert-warn';
+        } else if (cat.cls === 'cat-over') {
+            msg = '\u26A0\uFE0F Sobrepeso. Cuida tu alimentaci\u00F3n y actividad f\u00EDsica.';
+            cls = 'alert-warn';
+        } else {
+            div.style.display = 'none';
+            return;
+        }
+        div.textContent = msg;
+        div.className = 'alert-msg ' + cls;
+        div.style.display = 'block';
+    }
+
+    /* ---------- METAS ---------- */
+    function updateGoals() {
+        updateChart();
+    }
+
+    /* ---------- EXPORT CSV ---------- */
+    function exportCSV() {
+        if (!readings.length) { alert('No hay datos para exportar.'); return; }
+        var csv = 'Fecha,Hora,Peso (kg),Altura (cm),IMC,Categor\u00EDa,Notas\n';
+        readings.forEach(function (r) {
+            var cat = getCategory(r.imc).label;
+            csv += (r.date || '') + ',' + (r.time || '') + ',' + r.weight + ',' + (r.height || '') + ',' +
+                   r.imc + ',' + cat + ',"' + (r.notes || '').replace(/"/g, '""') + '"\n';
+        });
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'peso_imc.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+    }
+
+    /* ---------- CHART ---------- */
+    function updateChart() {
+        var ctx = document.getElementById('imcChart').getContext('2d');
+        var goalMin = parseFloat(document.getElementById('goalMin').value) || 18.5;
+        var goalMax = parseFloat(document.getElementById('goalMax').value) || 24.9;
+        var labels = readings.map(function (r) {
+            return (r.date || '') + (r.time ? ' ' + r.time.substring(0, 5) : '');
+        });
+        var data = readings.map(function (r) { return r.imc; });
+
+        if (chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'IMC',
+                        data: data,
+                        borderColor: '#7c3aed',
+                        backgroundColor: 'rgba(124,58,237,0.05)',
+                        tension: 0.3,
+                        pointRadius: 4,
+                        borderWidth: 2.5
+                    },
+                    {
+                        label: 'M\u00EDn. normal',
+                        data: Array(readings.length).fill(goalMin),
+                        borderColor: '#2563eb',
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        borderWidth: 1.8
+                    },
+                    {
+                        label: 'M\u00E1x. normal',
+                        data: Array(readings.length).fill(goalMax),
+                        borderColor: '#b45309',
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        borderWidth: 1.8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { usePointStyle: true, padding: 12, font: { size: 10 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            afterBody: function (ctx) {
+                                var r = readings[ctx[0].dataIndex];
+                                return r && r.notes ? '\uD83D\uDCDD ' + r.notes : '';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        min: 10,
+                        max: 45,
+                        ticks: { stepSize: 5 },
+                        title: { display: true, text: 'kg/m\u00B2' }
+                    },
+                    x: {
+                        ticks: { maxRotation: 45, autoSkip: true, maxTicksLimit: 12 }
+                    }
+                },
+                interaction: { mode: 'index', intersect: false }
+            }
+        });
+    }
+
+    /* ---------- INIT ---------- */
+    window.onload = function () {
+        loadTheme();
+        var now = new Date();
+        document.getElementById('inputDate').value = getTodayString();
+        document.getElementById('inputTime').value =
+            String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+
+        loadFromStorage();
+
+        // Escuchar cambios en peso y altura para calcular IMC autom&aacute;ticamente
+        document.getElementById('inputWeight').addEventListener('input', checkAlert);
+        document.getElementById('inputHeight').addEventListener('input', checkAlert);
+
+        // Recalcular meta al editar los inputs
+        document.getElementById('goalMin').addEventListener('input', updateChart);
+        document.getElementById('goalMax').addEventListener('input', updateChart);
+    };
+</script>
+
+<a href="index.html" class="home-fab no-print" title="Volver al inicio">
+    <i class="fas fa-home"></i>
+</a>
+</body>
+</html>
